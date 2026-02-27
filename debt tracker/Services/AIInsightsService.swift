@@ -57,7 +57,7 @@ protocol AIInsightsServiceProtocol: Sendable {
 final class AIInsightsService: AIInsightsServiceProtocol, Sendable {
     static let shared = AIInsightsService()
 
-    private let model = "claude-haiku-4-5-20251001"
+    private let model = "claude-sonnet-4-6"
     private let endpoint = URL(string: "https://api.anthropic.com/v1/messages")!
     private let anthropicVersion = "2023-06-01"
     private let maxTokens = 350
