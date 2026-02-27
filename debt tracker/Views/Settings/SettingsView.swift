@@ -15,6 +15,8 @@ struct SettingsView: View {
     @AppStorage("requireBiometrics") private var requireBiometrics = false
     @AppStorage("userName") private var userName = ""
     @State private var profilePhotoData: Data?
+    @State private var showSignOutConfirmation = false
+    private var authService = SupabaseAuthService.shared
 
     var body: some View {
         NavigationStack {
@@ -30,6 +32,7 @@ struct SettingsView: View {
                         preferencesSection
                         securitySection
                         dataSection
+                        accountSection
                         aboutSection
                     }
                     .padding(.horizontal, AppTheme.screenPadding)
@@ -68,6 +71,14 @@ struct SettingsView: View {
                 Button(S.tr("common.ok"), role: .cancel) {}
             } message: {
                 Text(S.tr("alert.copied.message"))
+            }
+            .alert(S.tr("auth.signOutConfirm"), isPresented: $showSignOutConfirmation) {
+                Button(S.tr("common.cancel"), role: .cancel) {}
+                Button(S.tr("auth.signOut"), role: .destructive) {
+                    Task { await authService.signOut() }
+                }
+            } message: {
+                Text(S.tr("auth.signOutMessage"))
             }
         }
     }
@@ -258,6 +269,88 @@ struct SettingsView: View {
                 RoundedRectangle(cornerRadius: AppTheme.smallCornerRadius)
                     .fill(ColorTokens.surface)
             )
+        }
+    }
+
+    // MARK: - Account
+
+    private var accountSection: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            sectionHeader(title: S.tr("settings.account"), icon: "person.circle.fill")
+                .padding(.bottom, 12)
+
+            VStack(spacing: 0) {
+                // User info
+                if let user = authService.currentUser {
+                    HStack(spacing: 14) {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(ColorTokens.primaryAccent.opacity(0.15))
+                                .frame(width: 32, height: 32)
+                            Image(systemName: providerIcon(user.provider))
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundStyle(ColorTokens.primaryAccent)
+                        }
+
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text(user.email ?? S.tr("settings.noEmail"))
+                                .font(AppTypography.body)
+                                .foregroundStyle(ColorTokens.textPrimary)
+                            Text(providerLabel(user.provider))
+                                .font(AppTypography.caption)
+                                .foregroundStyle(ColorTokens.textTertiary)
+                        }
+
+                        Spacer()
+                    }
+                    .padding(14)
+
+                    Divider().background(ColorTokens.surfaceBorder)
+                }
+
+                // Sign Out
+                Button {
+                    showSignOutConfirmation = true
+                } label: {
+                    HStack(spacing: 14) {
+                        ZStack {
+                            RoundedRectangle(cornerRadius: 8)
+                                .fill(ColorTokens.red.opacity(0.15))
+                                .frame(width: 32, height: 32)
+                            Image(systemName: "rectangle.portrait.and.arrow.right")
+                                .font(.system(size: 15, weight: .semibold))
+                                .foregroundStyle(ColorTokens.red)
+                        }
+
+                        Text(S.tr("auth.signOut"))
+                            .font(AppTypography.body)
+                            .foregroundStyle(ColorTokens.red)
+
+                        Spacer()
+                    }
+                    .padding(14)
+                }
+            }
+            .background(
+                RoundedRectangle(cornerRadius: AppTheme.smallCornerRadius)
+                    .fill(ColorTokens.surface)
+            )
+        }
+    }
+
+    private func providerIcon(_ provider: String) -> String {
+        switch provider {
+        case "apple": return "apple.logo"
+        case "google": return "globe"
+        default: return "envelope.fill"
+        }
+    }
+
+    private func providerLabel(_ provider: String) -> String {
+        switch provider {
+        case "apple": return S.tr("auth.providerApple")
+        case "google": return S.tr("auth.providerGoogle")
+        default: return S.tr("auth.providerEmail")
         }
     }
 

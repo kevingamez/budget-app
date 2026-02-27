@@ -11,19 +11,27 @@ import SwiftData
 struct ContentView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @State private var selectedTab: AppTab = .dashboard
+    private var authService = SupabaseAuthService.shared
 
     var body: some View {
         Group {
-            if hasCompletedOnboarding {
-                MainTabView(selectedTab: $selectedTab)
-                    .background(ColorTokens.background)
+            if !hasCompletedOnboarding {
+                OnboardingView()
+                    .transition(.opacity)
+            } else if !authService.isAuthenticated {
+                AuthView()
                     .transition(.opacity)
             } else {
-                OnboardingView()
+                MainTabView(selectedTab: $selectedTab)
+                    .background(ColorTokens.background)
                     .transition(.opacity)
             }
         }
         .animation(AppAnimations.sheetSpring, value: hasCompletedOnboarding)
+        .animation(AppAnimations.sheetSpring, value: authService.isAuthenticated)
+        .task {
+            await authService.refreshSession()
+        }
     }
 }
 
