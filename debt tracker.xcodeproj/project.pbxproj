@@ -65,6 +65,7 @@
 			);
 			name = "debt tracker";
 			packageProductDependencies = (
+				C1A000022F51700000C51481 /* Supabase */,
 			);
 			productName = "debt tracker";
 			productReference = 411698A12F5160EE00C5148C /* debt tracker.app */;
@@ -98,6 +99,9 @@
 			productRefGroup = 411698A22F5160EE00C5148C /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
+			packageReferences = (
+				C1A000012F51700000C51480 /* XCRemoteSwiftPackageReference "supabase-swift" */,
+			);
 			targets = (
 				411698A02F5160EE00C5148C /* debt tracker */,
 			);
@@ -345,6 +349,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		C1A000012F51700000C51480 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C1A000022F51700000C51481 /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C1A000012F51700000C51480 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 411698992F5160EE00C5148C /* Project object */;
 }
