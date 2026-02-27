@@ -26,7 +26,6 @@ struct debt_trackerApp: App {
     init() {
         #if DEBUG
         seedSampleDataIfNeeded()
-        loadAPIKeyFromEnv()
         #endif
     }
 
@@ -43,31 +42,6 @@ struct debt_trackerApp: App {
             } catch {
                 print("Debug seed failed: \(error)")
             }
-        }
-    }
-
-    private func loadAPIKeyFromEnv() {
-        // Skip if key already in Keychain
-        if KeychainService.loadAPIKey() != nil { return }
-
-        // Walk up from the app bundle to find .env at the project root
-        var dir = Bundle.main.bundleURL.deletingLastPathComponent()
-        for _ in 0..<10 {
-            let envFile = dir.appendingPathComponent(".env")
-            if let contents = try? String(contentsOf: envFile, encoding: .utf8) {
-                for line in contents.components(separatedBy: .newlines) {
-                    let trimmed = line.trimmingCharacters(in: .whitespaces)
-                    if trimmed.hasPrefix("ANTHROPIC_API_KEY=") {
-                        let value = String(trimmed.dropFirst("ANTHROPIC_API_KEY=".count))
-                        if !value.isEmpty {
-                            _ = KeychainService.saveAPIKey(value)
-                            print("[Debug] API key loaded from .env")
-                            return
-                        }
-                    }
-                }
-            }
-            dir = dir.deletingLastPathComponent()
         }
     }
     #endif

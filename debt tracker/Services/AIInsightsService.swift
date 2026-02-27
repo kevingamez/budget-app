@@ -36,7 +36,7 @@ enum AIInsightsError: Error {
     var displayMessage: String {
         let S = AppStrings.shared
         switch self {
-        case .noAPIKey: return S.tr("ai.insights.noKey.title")
+        case .noAPIKey: return S.tr("ai.insights.error.title")
         case .invalidKey: return S.tr("ai.error.invalidKey")
         case .rateLimited: return S.tr("ai.error.rateLimited")
         case .networkError(let e): return e.localizedDescription
@@ -44,6 +44,21 @@ enum AIInsightsError: Error {
         case .decodingError, .emptyResponse: return S.tr("ai.insights.error.title")
         }
     }
+}
+
+// MARK: - Secrets
+
+private enum Secrets {
+    static let shared: [String: String] = {
+        guard let url = Bundle.main.url(forResource: "Secrets", withExtension: "plist"),
+              let data = try? Data(contentsOf: url),
+              let dict = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: String]
+        else { return [:] }
+        return dict
+    }()
+
+    static var apiKey: String? { shared["ANTHROPIC_API_KEY"] }
+    static var model: String { shared["ANTHROPIC_MODEL"] ?? "claude-sonnet-4-6" }
 }
 
 // MARK: - Protocol
@@ -57,13 +72,12 @@ protocol AIInsightsServiceProtocol: Sendable {
 final class AIInsightsService: AIInsightsServiceProtocol, Sendable {
     static let shared = AIInsightsService()
 
-    private let model = "claude-sonnet-4-6"
     private let endpoint = URL(string: "https://api.anthropic.com/v1/messages")!
     private let anthropicVersion = "2023-06-01"
     private let maxTokens = 350
 
     func fetchInsight(for snapshot: FinancialSnapshot) async throws -> String {
-        guard let apiKey = KeychainService.loadAPIKey(), !apiKey.isEmpty else {
+        guard let apiKey = Secrets.apiKey, !apiKey.isEmpty else {
             throw AIInsightsError.noAPIKey
         }
 
@@ -74,7 +88,7 @@ final class AIInsightsService: AIInsightsServiceProtocol, Sendable {
         request.setValue(anthropicVersion, forHTTPHeaderField: "anthropic-version")
 
         let body: [String: Any] = [
-            "model": model,
+            "model": Secrets.model,
             "max_tokens": maxTokens,
             "messages": [
                 ["role": "user", "content": buildPrompt(snapshot)]

@@ -50,8 +50,6 @@ struct AIInsightsSheetView: View {
                         // Content
                         if viewModel.isLoading {
                             loadingView
-                        } else if viewModel.showNoAPIKeyPrompt {
-                            noAPIKeyView
                         } else if let error = viewModel.errorMessage {
                             errorView(message: error)
                         } else if !viewModel.insightText.isEmpty {
@@ -114,28 +112,6 @@ struct AIInsightsSheetView: View {
                 .font(AppTypography.caption)
                 .foregroundStyle(ColorTokens.textTertiary)
         }
-    }
-
-    // MARK: - No API Key
-
-    private var noAPIKeyView: some View {
-        VStack(spacing: 16) {
-            Image(systemName: "key.fill")
-                .font(.system(size: 40))
-                .foregroundStyle(ColorTokens.primaryGradient)
-
-            Text(S.tr("ai.insights.noKey.title"))
-                .font(AppTypography.title3)
-                .foregroundStyle(ColorTokens.textPrimary)
-
-            Text(S.tr("ai.insights.noKey.subtitle"))
-                .font(AppTypography.subheadline)
-                .foregroundStyle(ColorTokens.textSecondary)
-                .multilineTextAlignment(.center)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.top, 20)
-        .padding(.horizontal, 8)
     }
 
     // MARK: - Error

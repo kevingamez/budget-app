@@ -37,9 +37,10 @@ fastlane/test_output
 .Trashes
 Thumbs.db
 
-# Environment
+# Environment & Secrets
 .env
 .env.*
+Secrets.plist
 
 # Claude Code
 .claude/

@@ -5,7 +5,6 @@ final class AIInsightsViewModel {
     var insightText: String = ""
     var isLoading: Bool = false
     var errorMessage: String?
-    var showNoAPIKeyPrompt: Bool = false
 
     private var cache: [String: CachedInsight] = [:]
     private let service: AIInsightsServiceProtocol
@@ -16,11 +15,6 @@ final class AIInsightsViewModel {
 
     func loadInsight(for snapshot: FinancialSnapshot) async {
         guard !isLoading else { return }
-
-        guard KeychainService.loadAPIKey() != nil else {
-            showNoAPIKeyPrompt = true
-            return
-        }
 
         let cacheKey = makeCacheKey(snapshot)
         if let cached = cache[cacheKey], cached.isValid {
@@ -37,11 +31,7 @@ final class AIInsightsViewModel {
             insightText = text
             cache[cacheKey] = CachedInsight(text: text)
         } catch let error as AIInsightsError {
-            if case .noAPIKey = error {
-                showNoAPIKeyPrompt = true
-            } else {
-                errorMessage = error.displayMessage
-            }
+            errorMessage = error.displayMessage
         } catch {
             errorMessage = error.localizedDescription
         }
