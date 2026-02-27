@@ -40,7 +40,7 @@ debt tracker/
 │   ├── Settings/    — Settings & notifications
 │   └── Components/  — Reusable UI components
 ├── Theme/           — ColorTokens, Typography, Animations, AppTheme
-├── Services/        — NotificationService, SampleDataService
+├── Services/        — AppStrings (i18n), NotificationService, SampleDataService
 └── Extensions/      — Color+, Decimal+, Date+, View+
 ```
 
@@ -73,3 +73,14 @@ debt tracker/
 - **Data flow:** `@Query` in views → ViewModel filters/transforms → display. Mutations go through ViewModel methods that take `ModelContext` parameter
 - **`.searchable`** on DebtsListView for native search experience
 - **Swipe actions** on debt rows for quick mark-as-paid and delete
+
+### Localization System
+- **`AppStrings`** — `@Observable` singleton with `[key: [lang: translation]]` dictionary
+- **6 languages:** en, es, fr, pt, ja, ko — instant runtime switching via `AppStrings.shared.language`
+- **Pattern:** `private let S = AppStrings.shared` at file top, then `S.tr("key")` or `S.tr("key", arg)`
+- **Keys organized by screen:** `"dashboard.title"`, `"debts.empty.title"`, `"settings.section.general"`, etc.
+- **No .xcstrings** — dictionary approach enables in-app language switching without restart
+
+### CI/CD
+- **GitHub Actions** — `.github/workflows/build.yml` builds on push/PR to `main`
+- **Remote:** `git@github.com:kevingamez/budget-app.git`
