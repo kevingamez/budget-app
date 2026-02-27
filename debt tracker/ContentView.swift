@@ -6,19 +6,28 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct ContentView: View {
+    @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
+    @State private var selectedTab: AppTab = .dashboard
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        Group {
+            if hasCompletedOnboarding {
+                MainTabView(selectedTab: $selectedTab)
+                    .background(ColorTokens.background)
+                    .transition(.opacity)
+            } else {
+                OnboardingView()
+                    .transition(.opacity)
+            }
         }
-        .padding()
+        .animation(AppAnimations.sheetSpring, value: hasCompletedOnboarding)
     }
 }
 
 #Preview {
     ContentView()
+        .modelContainer(for: [Debt.self, Payment.self, Person.self, DebtCategory.self], inMemory: true)
 }
