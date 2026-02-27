@@ -9,6 +9,7 @@ struct DashboardView: View {
     @Query private var persons: [Person]
     @State private var viewModel = DashboardViewModel()
     @State private var appeared = false
+    @State private var selectedInsight: InsightRequest?
 
     var body: some View {
         NavigationStack {
@@ -84,7 +85,12 @@ struct DashboardView: View {
                                 averageAmount: debts.isEmpty ? 0 : debts.reduce(Decimal.zero) { $0 + $1.totalAmount } / Decimal(debts.count),
                                 totalPersons: persons.count,
                                 totalPayments: payments.count,
-                                totalPaymentAmount: payments.reduce(Decimal.zero) { $0 + $1.amount }
+                                totalPaymentAmount: payments.reduce(Decimal.zero) { $0 + $1.amount },
+                                debts: debts,
+                                persons: persons,
+                                onCardTapped: { snapshot, gradient in
+                                    selectedInsight = InsightRequest(snapshot: snapshot, gradient: gradient)
+                                }
                             )
                         }
                         .staggeredAppear(index: 5, appeared: appeared)
@@ -106,6 +112,9 @@ struct DashboardView: View {
             }
             .onChange(of: payments.count) {
                 viewModel.refresh(debts: debts, payments: payments)
+            }
+            .sheet(item: $selectedInsight) { request in
+                AIInsightsSheetView(snapshot: request.snapshot, cardGradient: request.gradient)
             }
         }
     }

@@ -154,6 +154,14 @@ struct SettingsView: View {
                 } label: {
                     settingsRow(icon: "paintbrush.fill", iconColor: ColorTokens.primaryAccent, title: S.tr("settings.appearance"))
                 }
+
+                Divider().background(ColorTokens.surfaceBorder)
+
+                NavigationLink {
+                    AISettingsView()
+                } label: {
+                    settingsRow(icon: "sparkles", iconColor: ColorTokens.gold, title: S.tr("ai.settings.title"))
+                }
             }
             .background(
                 RoundedRectangle(cornerRadius: AppTheme.smallCornerRadius)
