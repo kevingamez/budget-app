@@ -51,7 +51,7 @@ struct AppearanceSettingsView: View {
                                         .foregroundStyle(ColorTokens.textPrimary)
 
                                     if let rate = currencyService.rate(from: "USD", to: currency.id), currency.id != "USD" {
-                                        Text("1 USD = \(String(format: "%.2f", rate)) \(currency.id)")
+                                        Text(S.tr("appearance.rate.format", String(format: "%.2f", rate), currency.id))
                                             .font(AppTypography.caption)
                                             .foregroundStyle(ColorTokens.textTertiary)
                                     }
@@ -73,7 +73,7 @@ struct AppearanceSettingsView: View {
                         .foregroundStyle(ColorTokens.textTertiary)
                 } footer: {
                     if let lastFetched = currencyService.lastFetched {
-                        Text("Rates updated \(lastFetched.relativeFormatted)")
+                        Text(S.tr("appearance.ratesUpdated", lastFetched.relativeFormatted))
                             .foregroundStyle(ColorTokens.textTertiary)
                     }
                 }
@@ -217,10 +217,7 @@ struct AppearanceSettingsView: View {
     }
 
     private func formatConverted(_ value: Decimal, code: String) -> String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.minimumFractionDigits = 2
-        formatter.maximumFractionDigits = 2
+        let formatter = CurrencyFormatting.decimalFormatter(minFraction: 2, maxFraction: 2)
         return formatter.string(from: NSDecimalNumber(decimal: value)) ?? "0.00"
     }
 }

@@ -1,17 +1,27 @@
 import Foundation
 
+private let cachedRelativeFormatter: RelativeDateTimeFormatter = {
+    let f = RelativeDateTimeFormatter()
+    f.unitsStyle = .short
+    return f
+}()
+
+private let cachedShortDateFormatter: DateFormatter = {
+    let f = DateFormatter()
+    f.dateStyle = .medium
+    f.timeStyle = .none
+    return f
+}()
+
 extension Date {
     var relativeFormatted: String {
-        let formatter = RelativeDateTimeFormatter()
-        formatter.unitsStyle = .short
-        return formatter.localizedString(for: self, relativeTo: Date())
+        cachedRelativeFormatter.locale = Locale(identifier: AppStrings.shared.language)
+        return cachedRelativeFormatter.localizedString(for: self, relativeTo: Date())
     }
 
     var shortFormatted: String {
-        let formatter = DateFormatter()
-        formatter.dateStyle = .medium
-        formatter.timeStyle = .none
-        return formatter.string(from: self)
+        cachedShortDateFormatter.locale = Locale(identifier: AppStrings.shared.language)
+        return cachedShortDateFormatter.string(from: self)
     }
 
     var isToday: Bool {

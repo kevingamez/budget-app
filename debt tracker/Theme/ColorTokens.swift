@@ -34,7 +34,8 @@ enum ColorTokens {
     // MARK: - Text
     static let textPrimary = Color.white
     static let textSecondary = Color.white.opacity(0.6)
-    static let textTertiary = Color.white.opacity(0.35)
+    // raised from 0.35 to meet WCAG AA contrast on near-black background
+    static let textTertiary = Color.white.opacity(0.55)
 
     // MARK: - Semantic
     static let owedToMeColor = green

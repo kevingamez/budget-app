@@ -1163,6 +1163,88 @@ final class AppStrings {
             "ja": "\u{652F}\u{6255}\u{6E08}\u{307F}\u{306B}\u{3059}\u{308B}",
             "ko": "\u{C0C1}\u{D658} \u{C644}\u{B8CC}\u{B85C} \u{D45C}\u{C2DC}",
         ],
+        "common.close": [
+            "en": "Close",
+            "es": "Cerrar",
+            "fr": "Fermer",
+            "pt": "Fechar",
+            "ja": "\u{9589}\u{3058}\u{308B}",
+            "ko": "\u{B2EB}\u{AE30}",
+        ],
+        "common.edit": [
+            "en": "Edit",
+            "es": "Editar",
+            "fr": "Modifier",
+            "pt": "Editar",
+            "ja": "\u{7DE8}\u{96C6}",
+            "ko": "\u{D3B8}\u{C9D1}",
+        ],
+        "common.copy": [
+            "en": "Copy",
+            "es": "Copiar",
+            "fr": "Copier",
+            "pt": "Copiar",
+            "ja": "\u{30B3}\u{30D4}\u{30FC}",
+            "ko": "\u{BCF5}\u{C0AC}",
+        ],
+        "common.clear": [
+            "en": "Clear",
+            "es": "Borrar",
+            "fr": "Effacer",
+            "pt": "Limpar",
+            "ja": "\u{30AF}\u{30EA}\u{30A2}",
+            "ko": "\u{C9C0}\u{C6B0}\u{AE30}",
+        ],
+
+        // =====================================================================
+        // MARK: - Debts (action labels)
+        // =====================================================================
+
+        "debts.addDebt": [
+            "en": "Add Debt",
+            "es": "A\u{00F1}adir Deuda",
+            "fr": "Ajouter une Dette",
+            "pt": "Adicionar D\u{00ED}vida",
+            "ja": "\u{50B5}\u{52D9}\u{3092}\u{8FFD}\u{52A0}",
+            "ko": "\u{BE5A} \u{CD94}\u{AC00}",
+        ],
+        "debts.sort": [
+            "en": "Sort",
+            "es": "Ordenar",
+            "fr": "Trier",
+            "pt": "Ordenar",
+            "ja": "\u{4E26}\u{3079}\u{66FF}\u{3048}",
+            "ko": "\u{C815}\u{B82C}",
+        ],
+
+        // =====================================================================
+        // MARK: - Accessibility (composite labels)
+        // =====================================================================
+
+        "a11y.debt.row": [
+            "en": "%@ \u{2014} %@, %@",
+            "es": "%@ \u{2014} %@, %@",
+            "fr": "%@ \u{2014} %@, %@",
+            "pt": "%@ \u{2014} %@, %@",
+            "ja": "%@ \u{2014} %@\u{3001}%@",
+            "ko": "%@ \u{2014} %@, %@",
+        ],
+        "a11y.debt.row.hint": [
+            "en": "Double-tap to view details",
+            "es": "Toca dos veces para ver detalles",
+            "fr": "Touchez deux fois pour voir les d\u{00E9}tails",
+            "pt": "Toque duas vezes para ver detalhes",
+            "ja": "\u{30C0}\u{30D6}\u{30EB}\u{30BF}\u{30C3}\u{30D7}\u{3057}\u{3066}\u{8A73}\u{7D30}\u{3092}\u{8868}\u{793A}",
+            "ko": "\u{C138}\u{BD80}\u{C815}\u{BCF4}\u{B97C} \u{BCF4}\u{B824}\u{BA74} \u{B450}\u{BC88} \u{D0ED}\u{D558}\u{C138}\u{C694}",
+        ],
+        "a11y.payment.row": [
+            "en": "Payment of %@ to %@, %@",
+            "es": "Pago de %@ a %@, %@",
+            "fr": "Paiement de %@ \u{00E0} %@, %@",
+            "pt": "Pagamento de %@ para %@, %@",
+            "ja": "%@\u{3078}\u{306E}%@\u{306E}\u{652F}\u{6255}\u{3044}\u{3001}%@",
+            "ko": "%@\u{C5D0}\u{AC8C} %@ \u{C9C0}\u{BD88}, %@",
+        ],
 
         // =====================================================================
         // MARK: - Profile
@@ -1321,6 +1403,22 @@ final class AppStrings {
             "pt": "N\u{00E3}o foi poss\u{00ED}vel carregar as taxas",
             "ja": "\u{30EC}\u{30FC}\u{30C8}\u{3092}\u{8AAD}\u{307F}\u{8FBC}\u{3081}\u{307E}\u{305B}\u{3093}\u{3067}\u{3057}\u{305F}",
             "ko": "\u{D658}\u{C728}\u{C744} \u{B85C}\u{B4DC}\u{D560} \u{C218} \u{C5C6}\u{C2B5}\u{B2C8}\u{B2E4}",
+        ],
+        "appearance.rate.format": [
+            "en": "1 USD = %@ %@",
+            "es": "1 USD = %@ %@",
+            "fr": "1 USD = %@ %@",
+            "pt": "1 USD = %@ %@",
+            "ja": "1 USD = %@ %@",
+            "ko": "1 USD = %@ %@",
+        ],
+        "appearance.ratesUpdated": [
+            "en": "Rates updated %@",
+            "es": "Tasas actualizadas %@",
+            "fr": "Taux mis \u{00E0} jour %@",
+            "pt": "Taxas atualizadas %@",
+            "ja": "\u{30EC}\u{30FC}\u{30C8}\u{66F4}\u{65B0}: %@",
+            "ko": "\u{D658}\u{C728} \u{C5C5}\u{B370}\u{C774}\u{D2B8}: %@",
         ],
         "appearance.defaultDirection": [
             "en": "Default Direction for New Debts",
@@ -2008,4 +2106,10 @@ final class AppStrings {
             "ko": "\u{C774}\u{BA54}\u{C77C} \u{C5C6}\u{C74C}",
         ],
     ]
+
+    /// Picks "<keyBase>.one" or "<keyBase>.other" based on count, then runs String(format:) with the count.
+    func plural(_ keyBase: String, count: Int) -> String {
+        let suffix = (count == 1) ? ".one" : ".other"
+        return tr(keyBase + suffix, "\(count)")
+    }
 }
