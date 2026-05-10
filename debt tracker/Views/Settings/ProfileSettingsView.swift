@@ -120,6 +120,14 @@ struct ProfileSettingsView: View {
                                 .frame(width: 100, height: 100)
                                 .clipShape(Circle())
                         }
+                        #elseif canImport(AppKit)
+                        if let nsImage = NSImage(data: data) {
+                            Image(nsImage: nsImage)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 100, height: 100)
+                                .clipShape(Circle())
+                        }
                         #endif
                     } else {
                         Circle()

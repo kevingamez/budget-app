@@ -50,6 +50,12 @@ struct MainTabView: View {
                 SettingsView()
             }
         }
+        .tabViewStyle(.sidebarAdaptable)
         .tint(ColorTokens.primaryAccent)
+        .onReceive(NotificationCenter.default.publisher(for: .newDebtRequested)) { _ in
+            // Surface the New Debt form (used by ⌘N on macOS). Switch to the
+            // debts tab; the list view re-emits this notification to open the sheet.
+            selectedTab = .debts
+        }
     }
 }

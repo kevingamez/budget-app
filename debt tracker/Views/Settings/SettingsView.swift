@@ -101,6 +101,14 @@ struct SettingsView: View {
                                 .frame(width: 70, height: 70)
                                 .clipShape(Circle())
                         }
+                        #elseif canImport(AppKit)
+                        if let nsImage = NSImage(data: data) {
+                            Image(nsImage: nsImage)
+                                .resizable()
+                                .scaledToFill()
+                                .frame(width: 70, height: 70)
+                                .clipShape(Circle())
+                        }
                         #endif
                     } else {
                         Circle()

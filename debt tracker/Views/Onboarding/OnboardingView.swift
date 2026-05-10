@@ -22,7 +22,9 @@ struct OnboardingView: View {
                     CurrencySelectionPage(selectedCurrencyCode: $viewModel.selectedCurrencyCode)
                         .tag(2)
                 }
+                #if os(iOS)
                 .tabViewStyle(.page(indexDisplayMode: .never))
+                #endif
                 .animation(.spring(response: 0.4, dampingFraction: 0.85), value: viewModel.currentPage)
 
                 // Bottom controls

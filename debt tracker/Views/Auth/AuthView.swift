@@ -44,9 +44,11 @@ struct AuthView: View {
                     VStack(spacing: 14) {
                         TextField(S.tr("auth.email"), text: $viewModel.email)
                             .textContentType(.emailAddress)
+                            #if os(iOS)
                             .keyboardType(.emailAddress)
-                            .autocorrectionDisabled()
                             .textInputAutocapitalization(.never)
+                            #endif
+                            .autocorrectionDisabled()
                             .font(AppTypography.body)
                             .foregroundStyle(ColorTokens.textPrimary)
                             .padding(14)
@@ -130,21 +132,45 @@ struct AuthView: View {
 
                     // Social Buttons
                     VStack(spacing: 12) {
-                        // Apple Sign In
-                        SignInWithAppleButton(.signIn) { request in
-                            request.requestedScopes = [.email, .fullName]
-                        } onCompletion: { _ in }
+                        // Apple Sign In — native button is the actual tap target.
+                        SignInWithAppleButton(.signIn,
+                            onRequest: { request in
+                                request.requestedScopes = [.fullName, .email]
+                                request.nonce = AppleSignInService.shared.currentNonceHash()
+                            },
+                            onCompletion: { result in
+                                let raw = AppleSignInService.shared.currentRawNonce()
+                                switch result {
+                                case .success(let auth):
+                                    guard let credential = auth.credential as? ASAuthorizationAppleIDCredential,
+                                          let tokenData = credential.identityToken,
+                                          let idToken = String(data: tokenData, encoding: .utf8)
+                                    else {
+                                        viewModel.errorMessage = S.tr("ai.insights.error.title")
+                                        return
+                                    }
+                                    Task { @MainActor in
+                                        viewModel.isLoading = true
+                                        await SupabaseAuthService.shared.signInWithIdToken(
+                                            idToken: idToken,
+                                            nonce: raw,
+                                            provider: "apple"
+                                        )
+                                        if let error = SupabaseAuthService.shared.errorMessage {
+                                            viewModel.errorMessage = error
+                                        }
+                                        viewModel.isLoading = false
+                                    }
+                                case .failure(let error):
+                                    if (error as NSError).code != ASAuthorizationError.canceled.rawValue {
+                                        viewModel.errorMessage = error.localizedDescription
+                                    }
+                                }
+                            }
+                        )
                         .signInWithAppleButtonStyle(.white)
                         .frame(height: 50)
                         .cornerRadius(AppTheme.smallCornerRadius)
-                        .overlay {
-                            // Intercept with our own handler
-                            Button {
-                                viewModel.signInWithApple()
-                            } label: {
-                                Color.clear
-                            }
-                        }
 
                         // Google Sign In (custom button)
                         Button {
