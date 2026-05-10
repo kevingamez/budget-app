@@ -62,16 +62,28 @@ final class DebtsListViewModel {
     }
 
     func deleteDebt(_ debt: Debt, context: ModelContext) {
+        if let identifier = debt.notificationIdentifier {
+            NotificationService.shared.cancelReminder(identifier: identifier)
+        }
         context.delete(debt)
+        try? context.save()
     }
 
+    // kept in sync with DebtDetailViewModel.recordPayment
     func markAsPaid(_ debt: Debt, context: ModelContext) {
         let remaining = debt.remainingAmount
         guard remaining > 0 else { return }
 
         let payment = Payment(amount: remaining, date: Date(), notes: S.tr("payment.paidInFull"), debt: debt)
         context.insert(payment)
-        debt.status = .paidOff
         debt.updatedAt = Date()
+        // Do not mutate debt.status — derivedStatus returns .paidOff automatically when remainingAmount <= 0.
+
+        if let identifier = debt.notificationIdentifier {
+            NotificationService.shared.cancelReminder(identifier: identifier)
+            debt.notificationIdentifier = nil
+        }
+
+        try? context.save()
     }
 }

@@ -1,6 +1,8 @@
 import Foundation
 import SwiftData
 
+// Views/VMs should read derivedStatus. Stored `status` is only updated for .forgiven; payment-driven states are derived.
+
 @Model
 final class Debt {
     var id: UUID = UUID()
@@ -40,15 +42,15 @@ final class Debt {
     }
 
     var isOverdue: Bool {
-        guard let dueDate, status != .paidOff, status != .forgiven else { return false }
+        guard let dueDate, status != .forgiven, remainingAmount > 0 else { return false }
         return dueDate < Date()
     }
 
     var derivedStatus: DebtStatus {
         if status == .forgiven { return .forgiven }
         if remainingAmount <= 0 { return .paidOff }
-        if isOverdue { return .overdue }
         if paidAmount > 0 { return .partiallyPaid }
+        if isOverdue { return .overdue }
         return .active
     }
 

@@ -4,15 +4,14 @@ import SwiftData
 private let S = AppStrings.shared
 
 struct EditDebtView: View {
-    @Bindable var debt: Debt
+    let debt: Debt
     @Environment(\.dismiss) private var dismiss
-    @State private var hasDueDate: Bool
-    @State private var dueDate: Date
+    @Environment(\.modelContext) private var modelContext
+    @State private var viewModel: EditDebtViewModel
 
     init(debt: Debt) {
         self.debt = debt
-        self._hasDueDate = State(initialValue: debt.dueDate != nil)
-        self._dueDate = State(initialValue: debt.dueDate ?? Calendar.current.date(byAdding: .day, value: 7, to: Date())!)
+        self._viewModel = State(initialValue: EditDebtViewModel(debt: debt))
     }
 
     var body: some View {
@@ -28,7 +27,7 @@ struct EditDebtView: View {
                                 .font(AppTypography.footnote)
                                 .foregroundStyle(ColorTokens.textSecondary)
 
-                            TextField(S.tr("addDebt.placeholder"), text: $debt.title)
+                            TextField(S.tr("addDebt.placeholder"), text: $viewModel.title)
                                 .font(AppTypography.body)
                                 .foregroundStyle(ColorTokens.textPrimary)
                                 .padding(12)
@@ -41,37 +40,31 @@ struct EditDebtView: View {
                                 .font(AppTypography.footnote)
                                 .foregroundStyle(ColorTokens.textSecondary)
 
-                            CategoryPickerView(selectedCategory: $debt.category)
+                            CategoryPickerView(selectedCategory: $viewModel.category)
                         }
 
                         // Due Date
                         VStack(alignment: .leading, spacing: 8) {
-                            Toggle(isOn: $hasDueDate.animation(AppAnimations.cardSpring)) {
+                            Toggle(isOn: $viewModel.hasDueDate.animation(AppAnimations.cardSpring)) {
                                 Text(S.tr("addDebt.dueDate"))
                                     .font(AppTypography.body)
                                     .foregroundStyle(ColorTokens.textPrimary)
                             }
                             .tint(ColorTokens.primaryAccent)
-                            .onChange(of: hasDueDate) { _, newValue in
-                                debt.dueDate = newValue ? dueDate : nil
-                            }
 
-                            if hasDueDate {
+                            if viewModel.hasDueDate {
                                 HStack {
                                     Image(systemName: "calendar")
                                         .foregroundStyle(ColorTokens.primaryAccent)
 
-                                    DatePicker("", selection: $dueDate, in: Date()..., displayedComponents: .date)
+                                    DatePicker("", selection: $viewModel.dueDate, in: Date()..., displayedComponents: .date)
                                         .datePickerStyle(.compact)
                                         .labelsHidden()
                                         .tint(ColorTokens.primaryAccent)
-                                        .onChange(of: dueDate) { _, newValue in
-                                            debt.dueDate = newValue
-                                        }
 
                                     Spacer()
 
-                                    Text(dueDate.shortFormatted)
+                                    Text(viewModel.dueDate.shortFormatted)
                                         .font(AppTypography.subheadline)
                                         .foregroundStyle(ColorTokens.textSecondary)
                                 }
@@ -87,10 +80,7 @@ struct EditDebtView: View {
                                 .font(AppTypography.footnote)
                                 .foregroundStyle(ColorTokens.textSecondary)
 
-                            TextField(S.tr("addDebt.notesPlaceholder"), text: Binding(
-                                get: { debt.notes ?? "" },
-                                set: { debt.notes = $0.isEmpty ? nil : $0 }
-                            ), axis: .vertical)
+                            TextField(S.tr("addDebt.notesPlaceholder"), text: $viewModel.notes, axis: .vertical)
                                 .font(AppTypography.body)
                                 .foregroundStyle(ColorTokens.textPrimary)
                                 .lineLimit(3...6)
@@ -109,11 +99,13 @@ struct EditDebtView: View {
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button(S.tr("common.done")) {
-                        debt.updatedAt = Date()
+                        viewModel.save(context: modelContext)
                         dismiss()
                     }
                     .foregroundStyle(ColorTokens.primaryAccent)
                     .fontWeight(.semibold)
+                    .disabled(!viewModel.isValid)
+                    .keyboardShortcut(.defaultAction)
                 }
 
                 ToolbarItem(placement: .cancellationAction) {
@@ -121,6 +113,7 @@ struct EditDebtView: View {
                         dismiss()
                     }
                     .foregroundStyle(ColorTokens.textSecondary)
+                    .keyboardShortcut(.cancelAction)
                 }
             }
         }

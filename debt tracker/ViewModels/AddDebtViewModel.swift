@@ -58,19 +58,28 @@ final class AddDebtViewModel {
         )
 
         context.insert(debt)
+        try? context.save()
 
-        // Schedule notification if reminder enabled
+        // Schedule notification if reminder enabled.
+        // We hop onto the MainActor (Debt is @MainActor-isolated) and persist the
+        // identifier with a follow-up save once the async schedule completes.
         if reminderEnabled {
-            Task {
+            let personName = person?.name ?? "Someone"
+            let debtTitle = debt.title
+            let debtDirection = direction
+            let scheduledDate = reminderDate
+            let debtID = debt.id.uuidString
+            Task { @MainActor in
                 let notifId = await NotificationService.shared.scheduleReminder(
-                    id: debt.id.uuidString,
-                    personName: person?.name ?? "Someone",
-                    title: debt.title,
-                    direction: direction,
-                    reminderDate: reminderDate,
+                    id: debtID,
+                    personName: personName,
+                    title: debtTitle,
+                    direction: debtDirection,
+                    reminderDate: scheduledDate,
                     existingIdentifier: nil
                 )
                 debt.notificationIdentifier = notifId
+                try? context.save()
             }
         }
     }

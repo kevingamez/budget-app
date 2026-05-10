@@ -14,6 +14,8 @@ struct StatsView: View {
     var persons: [Person] = []
     var onCardTapped: ((FinancialSnapshot, LinearGradient) -> Void)?
 
+    @State private var snapshotBuilder = StatsSnapshotBuilder()
+
     private let columns = [
         GridItem(.flexible(), spacing: 12),
         GridItem(.flexible(), spacing: 12),
@@ -26,7 +28,7 @@ struct StatsView: View {
                 title: S.tr("stats.totalDebts"),
                 value: "\(totalDebts)",
                 gradient: ColorTokens.primaryGradient,
-                onTap: { onCardTapped?(buildSnapshot(S.tr("stats.totalDebts")), ColorTokens.primaryGradient) }
+                onTap: { onCardTapped?(snapshot(for: S.tr("stats.totalDebts")), ColorTokens.primaryGradient) }
             )
 
             StatCard(
@@ -34,7 +36,7 @@ struct StatsView: View {
                 title: S.tr("stats.amountTracked"),
                 value: totalAmountTracked.compactFormatted,
                 gradient: ColorTokens.goldGradient,
-                onTap: { onCardTapped?(buildSnapshot(S.tr("stats.amountTracked")), ColorTokens.goldGradient) }
+                onTap: { onCardTapped?(snapshot(for: S.tr("stats.amountTracked")), ColorTokens.goldGradient) }
             )
 
             StatCard(
@@ -42,7 +44,7 @@ struct StatsView: View {
                 title: S.tr("stats.paidOff"),
                 value: "\(totalPaidOff)",
                 gradient: ColorTokens.greenGradient,
-                onTap: { onCardTapped?(buildSnapshot(S.tr("stats.paidOff")), ColorTokens.greenGradient) }
+                onTap: { onCardTapped?(snapshot(for: S.tr("stats.paidOff")), ColorTokens.greenGradient) }
             )
 
             StatCard(
@@ -50,7 +52,7 @@ struct StatsView: View {
                 title: S.tr("stats.avgDebt"),
                 value: averageAmount.compactFormatted,
                 gradient: ColorTokens.redGradient,
-                onTap: { onCardTapped?(buildSnapshot(S.tr("stats.avgDebt")), ColorTokens.redGradient) }
+                onTap: { onCardTapped?(snapshot(for: S.tr("stats.avgDebt")), ColorTokens.redGradient) }
             )
 
             StatCard(
@@ -58,7 +60,7 @@ struct StatsView: View {
                 title: S.tr("stats.people"),
                 value: "\(totalPersons)",
                 gradient: ColorTokens.primaryGradient,
-                onTap: { onCardTapped?(buildSnapshot(S.tr("stats.people")), ColorTokens.primaryGradient) }
+                onTap: { onCardTapped?(snapshot(for: S.tr("stats.people")), ColorTokens.primaryGradient) }
             )
 
             StatCard(
@@ -66,14 +68,50 @@ struct StatsView: View {
                 title: S.tr("stats.payments"),
                 value: "\(totalPayments)",
                 gradient: ColorTokens.greenGradient,
-                onTap: { onCardTapped?(buildSnapshot(S.tr("stats.payments")), ColorTokens.greenGradient) }
+                onTap: { onCardTapped?(snapshot(for: S.tr("stats.payments")), ColorTokens.greenGradient) }
             )
         }
     }
 
-    private func buildSnapshot(_ tappedTitle: String) -> FinancialSnapshot {
-        let owedToMe = debts.filter { $0.direction == .owedToMe }.reduce(Decimal.zero) { $0 + $1.remainingAmount }
-        let iOwe = debts.filter { $0.direction == .iOwe }.reduce(Decimal.zero) { $0 + $1.remainingAmount }
+    private func snapshot(for tappedTitle: String) -> FinancialSnapshot {
+        snapshotBuilder.build(
+            tappedTitle: tappedTitle,
+            debts: debts,
+            totalDebts: totalDebts,
+            totalAmountTracked: totalAmountTracked,
+            totalPaidOff: totalPaidOff,
+            averageAmount: averageAmount,
+            totalPersons: totalPersons,
+            totalPayments: totalPayments,
+            totalPaymentAmount: totalPaymentAmount
+        )
+    }
+}
+
+// MARK: - Snapshot Builder (extracted from view body)
+//
+// Aggregation logic lives outside the View so the body stays declarative and
+// UserDefaults reads happen in a single, testable place.
+
+@Observable
+final class StatsSnapshotBuilder {
+    func build(
+        tappedTitle: String,
+        debts: [Debt],
+        totalDebts: Int,
+        totalAmountTracked: Decimal,
+        totalPaidOff: Int,
+        averageAmount: Decimal,
+        totalPersons: Int,
+        totalPayments: Int,
+        totalPaymentAmount: Decimal
+    ) -> FinancialSnapshot {
+        let owedToMe = debts
+            .filter { $0.direction == .owedToMe }
+            .reduce(Decimal.zero) { $0 + $1.remainingAmount }
+        let iOwe = debts
+            .filter { $0.direction == .iOwe }
+            .reduce(Decimal.zero) { $0 + $1.remainingAmount }
 
         var categoryBreakdown: [String: Int] = [:]
         for debt in debts {
