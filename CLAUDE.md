@@ -84,3 +84,12 @@ debt tracker/
 ### CI/CD
 - **GitHub Actions** — `.github/workflows/build.yml` builds on push/PR to `main`
 - **Remote:** `git@github.com:kevingamez/budget-app.git`
+
+### Git workflow rules
+- **Always build before push.** Run `xcodebuild` for both iOS Simulator and macOS targets and confirm zero errors before `git push`. CI is best-effort and may not have every SDK installed; local verification is the source of truth.
+  ```sh
+  xcodebuild -project "debt tracker.xcodeproj" -scheme "debt tracker" \
+    -destination 'platform=iOS Simulator,name=iPhone 17,OS=latest' -quiet build
+  xcodebuild -project "debt tracker.xcodeproj" -scheme "debt tracker" \
+    -destination 'platform=macOS' -quiet build
+  ```
