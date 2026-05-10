@@ -29,5 +29,8 @@ struct SummaryCardView: View {
         }
         .frame(maxWidth: .infinity, minHeight: 100, alignment: .leading)
         .cardStyle()
+        #if os(iOS)
+        .hoverEffect(.lift)
+        #endif
     }
 }

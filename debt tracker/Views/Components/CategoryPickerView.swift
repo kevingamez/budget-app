@@ -44,6 +44,8 @@ private struct CategoryChip: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
+            .frame(minHeight: 44)
+            .contentShape(Capsule())
             .background(
                 Capsule()
                     .fill(isSelected ? Color(hex: category.colorHex).opacity(0.3) : ColorTokens.surfaceElevated)
@@ -55,5 +57,8 @@ private struct CategoryChip: View {
             .foregroundStyle(isSelected ? Color(hex: category.colorHex) : ColorTokens.textSecondary)
         }
         .pressable()
+        #if os(iOS)
+        .hoverEffect(.highlight)
+        #endif
     }
 }

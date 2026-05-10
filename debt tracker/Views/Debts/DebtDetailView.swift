@@ -72,6 +72,7 @@ struct DebtDetailView: View {
                     Image(systemName: "pencil")
                         .foregroundStyle(ColorTokens.primaryAccent)
                 }
+                .accessibilityLabel(S.tr("common.edit"))
             }
         }
         .sheet(isPresented: $viewModel.showPaymentSheet) {

@@ -65,5 +65,14 @@ struct ActivityRowView: View {
             }
             .padding(.vertical, 8)
         }
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(
+            S.tr(
+                "a11y.payment.row",
+                payment.amount.currencyFormatted,
+                payment.debt?.personName ?? S.tr("common.unknown"),
+                payment.date.relativeFormatted
+            )
+        )
     }
 }

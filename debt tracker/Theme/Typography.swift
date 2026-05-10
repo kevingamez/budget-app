@@ -11,6 +11,8 @@ enum AppTypography {
     static let subheadline = Font.system(size: 15, weight: .regular, design: .rounded)
     static let footnote = Font.system(size: 13, weight: .regular, design: .rounded)
     static let caption = Font.system(size: 12, weight: .regular, design: .rounded)
+    /// Relative caption2 — scales with Dynamic Type. Prefer over fixed sub-11pt sizes.
+    static let caption2 = Font.system(.caption2, design: .rounded)
 
     // Monospaced for currency amounts
     static let amountLarge = Font.system(size: 36, weight: .bold, design: .rounded)
