@@ -4,6 +4,7 @@ protocol NotificationServiceProtocol: Sendable {
     func requestPermission() async -> Bool
     func scheduleReminder(id: String, personName: String, title: String, direction: DebtDirection, reminderDate: Date, existingIdentifier: String?) async -> String?
     func cancelReminder(identifier: String)
+    func cancelAllReminders()
 }
 
 final class NotificationService: NotificationServiceProtocol, Sendable {
@@ -69,5 +70,6 @@ final class NotificationService: NotificationServiceProtocol, Sendable {
 
     func cancelAllReminders() {
         center.removeAllPendingNotificationRequests()
+        center.removeAllDeliveredNotifications()
     }
 }

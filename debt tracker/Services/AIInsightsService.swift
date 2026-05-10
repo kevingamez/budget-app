@@ -1,5 +1,15 @@
 import Foundation
 
+// MARK: - AI Consent
+
+enum AIConsent {
+    static let key = "ai_insights_consent_granted"
+    static var isGranted: Bool {
+        get { UserDefaults.standard.bool(forKey: key) }
+        set { UserDefaults.standard.set(newValue, forKey: key) }
+    }
+}
+
 // MARK: - Financial Snapshot
 
 struct FinancialSnapshot: Sendable {
@@ -32,6 +42,7 @@ enum AIInsightsError: Error {
     case httpError(Int)
     case decodingError
     case emptyResponse
+    case consentRequired
 
     var displayMessage: String {
         let S = AppStrings.shared
@@ -42,6 +53,7 @@ enum AIInsightsError: Error {
         case .networkError(let e): return e.localizedDescription
         case .httpError(let code): return S.tr("ai.error.serverError", "\(code)")
         case .decodingError, .emptyResponse: return S.tr("ai.insights.error.title")
+        case .consentRequired: return S.tr("ai.insights.error.title")
         }
     }
 }
@@ -77,12 +89,20 @@ final class AIInsightsService: AIInsightsServiceProtocol, Sendable {
     private let maxTokens = 350
 
     func fetchInsight(for snapshot: FinancialSnapshot) async throws -> String {
+        // Opt-in gate: do not transmit any financial data to a third party
+        // without explicit, granted consent.
+        guard AIConsent.isGranted else {
+            throw AIInsightsError.consentRequired
+        }
+
+        // SECURITY TODO: proxy this through a Supabase Edge Function so the Anthropic key is not shipped in the client binary.
         guard let apiKey = Secrets.apiKey, !apiKey.isEmpty else {
             throw AIInsightsError.noAPIKey
         }
 
         var request = URLRequest(url: endpoint)
         request.httpMethod = "POST"
+        request.timeoutInterval = 20
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue(apiKey, forHTTPHeaderField: "x-api-key")
         request.setValue(anthropicVersion, forHTTPHeaderField: "anthropic-version")
@@ -143,9 +163,11 @@ final class AIInsightsService: AIInsightsServiceProtocol, Sendable {
             .map { "\($0.key): \($0.value)" }
             .joined(separator: ", ")
 
-        let debtorList = s.topDebtorNames.isEmpty
+        // Anonymize PII before third-party LLM call
+        let anonymizedDebtors = s.topDebtorNames.enumerated().map { idx, _ in "Person \(idx + 1)" }
+        let debtorList = anonymizedDebtors.isEmpty
             ? "none"
-            : s.topDebtorNames.joined(separator: ", ")
+            : anonymizedDebtors.joined(separator: ", ")
 
         return """
         You are a concise personal finance advisor embedded in a debt-tracking iOS app. \

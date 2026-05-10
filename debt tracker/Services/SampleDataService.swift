@@ -1,5 +1,8 @@
 import Foundation
 import SwiftData
+import os
+
+private let sampleDataLog = Logger(subsystem: "kevingamez.debt-tracker", category: "sampleData")
 
 enum SampleDataService {
     static func seedCategories(context: ModelContext) {
@@ -85,7 +88,7 @@ enum SampleDataService {
             try context.delete(model: Person.self)
             try context.delete(model: DebtCategory.self)
         } catch {
-            print("Failed to clear data: \(error)")
+            sampleDataLog.error("Failed to clear data: \(String(describing: error), privacy: .public)")
         }
     }
 }

@@ -1,5 +1,6 @@
 import Foundation
 import Supabase
+import os
 
 // MARK: - Auth User
 
@@ -30,22 +31,44 @@ private enum SupabaseConfig {
 final class SupabaseAuthService {
     static let shared = SupabaseAuthService()
 
+    private static let log = Logger(subsystem: "kevingamez.debt-tracker", category: "auth")
+
     let client: SupabaseClient
     var currentUser: AuthUser?
     var isLoading = false
     var errorMessage: String?
+    var initializationError: String?
+    var isConfigured: Bool
 
     var isAuthenticated: Bool { currentUser != nil }
 
     private init() {
-        client = SupabaseClient(
-            supabaseURL: URL(string: SupabaseConfig.projectURL)!,
-            supabaseKey: SupabaseConfig.anonKey
-        )
+        let urlString = SupabaseConfig.projectURL
+        if let url = URL(string: urlString), !urlString.isEmpty {
+            client = SupabaseClient(
+                supabaseURL: url,
+                supabaseKey: SupabaseConfig.anonKey
+            )
+            isConfigured = true
+            initializationError = nil
 
-        // Restore user from persisted session
-        if let user = client.auth.currentUser {
-            currentUser = Self.mapUser(user)
+            // Restore user from persisted session
+            if let user = client.auth.currentUser {
+                currentUser = Self.mapUser(user)
+            }
+        } else {
+            // Bail gracefully — do not crash on missing/invalid config.
+            Self.log.error("Supabase URL missing or invalid; auth client is non-functional")
+            // Construct a non-functional client with a dummy URL so the type still resolves.
+            // swiftlint:disable:next force_unwrapping
+            let dummy = URL(string: "https://invalid.example.com")!
+            client = SupabaseClient(
+                supabaseURL: dummy,
+                supabaseKey: SupabaseConfig.anonKey
+            )
+            isConfigured = false
+            initializationError = "Supabase configuration missing"
+            currentUser = nil
         }
     }
 
@@ -109,8 +132,18 @@ final class SupabaseAuthService {
             try await client.auth.signOut()
         } catch {
             // Sign out locally even if server call fails
+            Self.log.error("Server sign-out failed: \(String(describing: error), privacy: .public)")
         }
         currentUser = nil
+
+        // Best-effort local cleanup of user-scoped state.
+        NotificationService.shared.cancelAllReminders()
+        ProfilePhotoStorage.delete()
+        // Clear any AI-insights cache keys that may exist locally.
+        let defaults = UserDefaults.standard
+        for key in defaults.dictionaryRepresentation().keys where key.hasPrefix("ai_insights_cache") {
+            defaults.removeObject(forKey: key)
+        }
     }
 
     // MARK: - Refresh Session
@@ -120,7 +153,27 @@ final class SupabaseAuthService {
             let session = try await client.auth.session
             currentUser = Self.mapUser(session.user)
         } catch {
-            currentUser = nil
+            // Only clear currentUser on auth-level errors (401). Transport/network errors
+            // should NOT log the user out — keep their session and try again later.
+            if let urlError = error as? URLError {
+                Self.log.error("Refresh transport error \(urlError.code.rawValue, privacy: .public): \(urlError.localizedDescription, privacy: .public)")
+                // leave currentUser untouched
+                return
+            }
+
+            let nsError = error as NSError
+            let isAuthError = nsError.code == 401
+                || nsError.localizedDescription.localizedCaseInsensitiveContains("unauthor")
+                || nsError.localizedDescription.localizedCaseInsensitiveContains("invalid token")
+                || nsError.localizedDescription.localizedCaseInsensitiveContains("jwt")
+
+            if isAuthError {
+                Self.log.error("Refresh auth error — clearing currentUser: \(String(describing: error), privacy: .public)")
+                currentUser = nil
+            } else {
+                Self.log.error("Refresh non-auth error — keeping currentUser: \(String(describing: error), privacy: .public)")
+                // leave currentUser untouched on ambiguous errors
+            }
         }
     }
 
