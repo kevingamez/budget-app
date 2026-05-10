@@ -25,11 +25,12 @@ struct ActivityFeedView: View {
                     )
                 } else {
                     ScrollView {
-                        VStack(spacing: 4) {
+                        LazyVStack(spacing: 4) {
                             // Filter
                             directionFilter
                                 .padding(.bottom, 8)
 
+                            let lastSectionIndex = sections.count - 1
                             ForEach(Array(sections.enumerated()), id: \.element.id) { sectionIndex, section in
                                 VStack(alignment: .leading, spacing: 0) {
                                     Text(section.title)
@@ -38,10 +39,11 @@ struct ActivityFeedView: View {
                                         .padding(.leading, 24)
                                         .padding(.bottom, 8)
 
+                                    let lastPaymentIndex = section.payments.count - 1
                                     ForEach(Array(section.payments.enumerated()), id: \.element.id) { index, payment in
                                         ActivityRowView(
                                             payment: payment,
-                                            isLast: index == section.payments.count - 1 && sectionIndex == sections.count - 1
+                                            isLast: index == lastPaymentIndex && sectionIndex == lastSectionIndex
                                         )
                                         .staggeredAppear(index: index, appeared: appeared)
                                     }
@@ -93,10 +95,13 @@ private struct FilterChip: View {
                 .foregroundStyle(isSelected ? .white : ColorTokens.textSecondary)
                 .padding(.horizontal, 14)
                 .padding(.vertical, 8)
-                .background(
-                    isSelected ? AnyShapeStyle(ColorTokens.primaryGradient) : AnyShapeStyle(ColorTokens.surfaceElevated),
-                    in: Capsule()
-                )
+                .background {
+                    if isSelected {
+                        Capsule().fill(ColorTokens.primaryGradient)
+                    } else {
+                        Capsule().fill(ColorTokens.surfaceElevated)
+                    }
+                }
         }
     }
 }

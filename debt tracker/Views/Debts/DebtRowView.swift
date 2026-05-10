@@ -5,7 +5,27 @@ private let S = AppStrings.shared
 struct DebtRowView: View {
     let debt: Debt
 
+    /// Cached per-render snapshot so `payments`-walking computed properties
+    /// (`derivedStatus`, `progressFraction`, `isOverdue`, `remainingAmount`)
+    /// are evaluated once per body instead of 4+ times.
+    private struct RowDisplay {
+        let status: DebtStatus
+        let progress: Double
+        let isOverdue: Bool
+        let remaining: Decimal
+    }
+
+    private var display: RowDisplay {
+        RowDisplay(
+            status: debt.derivedStatus,
+            progress: debt.progressFraction,
+            isOverdue: debt.isOverdue,
+            remaining: debt.remainingAmount
+        )
+    }
+
     var body: some View {
+        let d = display
         HStack(spacing: 14) {
             // Avatar
             PersonAvatarView(person: debt.person, size: .medium)
@@ -17,9 +37,9 @@ struct DebtRowView: View {
                         .font(AppTypography.headline)
                         .foregroundStyle(ColorTokens.textPrimary)
 
-                    if debt.derivedStatus == .overdue {
+                    if d.status == .overdue {
                         Text(S.tr("status.overdueBadge"))
-                            .font(.system(size: 9, weight: .bold, design: .rounded))
+                            .font(AppTypography.caption2.weight(.bold))
                             .foregroundStyle(.white)
                             .padding(.horizontal, 6)
                             .padding(.vertical, 2)
@@ -35,7 +55,7 @@ struct DebtRowView: View {
                 if let category = debt.category {
                     HStack(spacing: 4) {
                         Image(systemName: category.iconName)
-                            .font(.system(size: 10))
+                            .font(AppTypography.caption2)
                         Text(category.name)
                             .font(AppTypography.caption)
                     }
@@ -52,27 +72,27 @@ struct DebtRowView: View {
                     .foregroundStyle(ColorTokens.colorForDirection(debt.direction))
                     .contentTransition(.numericText())
 
-                if debt.progressFraction > 0 && debt.derivedStatus != .paidOff {
+                if d.progress > 0 && d.status != .paidOff {
                     AnimatedProgressBar(
-                        progress: debt.progressFraction,
+                        progress: d.progress,
                         gradient: ColorTokens.gradientForDirection(debt.direction),
                         height: 4
                     )
                     .frame(width: 60)
-                } else if debt.derivedStatus == .paidOff {
+                } else if d.status == .paidOff {
                     Text(S.tr("status.paid"))
                         .font(AppTypography.caption)
                         .foregroundStyle(ColorTokens.green)
-                } else if debt.derivedStatus == .forgiven {
+                } else if d.status == .forgiven {
                     Text(S.tr("status.forgiven"))
                         .font(AppTypography.caption)
                         .foregroundStyle(ColorTokens.gold)
                 }
 
-                if let dueDate = debt.dueDate, debt.derivedStatus != .paidOff, debt.derivedStatus != .forgiven {
+                if let dueDate = debt.dueDate, d.status != .paidOff, d.status != .forgiven {
                     Text(dueDate.relativeFormatted)
                         .font(AppTypography.caption)
-                        .foregroundStyle(debt.isOverdue ? ColorTokens.overdueColor : ColorTokens.textTertiary)
+                        .foregroundStyle(d.isOverdue ? ColorTokens.overdueColor : ColorTokens.textTertiary)
                 }
             }
         }
@@ -82,5 +102,12 @@ struct DebtRowView: View {
                 .fill(ColorTokens.surface)
                 .shadow(color: AppTheme.cardShadow, radius: 6, y: 3)
         )
+        .contentShape(RoundedRectangle(cornerRadius: AppTheme.cardCornerRadius))
+        #if os(iOS)
+        .hoverEffect(.lift)
+        #endif
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel(S.tr("a11y.debt.row", debt.personName, debt.totalAmount.currencyFormatted, d.status.label))
+        .accessibilityHint(S.tr("a11y.debt.row.hint"))
     }
 }

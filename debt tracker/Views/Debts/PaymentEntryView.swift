@@ -74,14 +74,18 @@ struct PaymentEntryView: View {
                                 .foregroundStyle(.white)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 16)
-                                .background(
-                                    viewModel.isPaymentValid
-                                        ? AnyShapeStyle(ColorTokens.gradientForDirection(debt.direction))
-                                        : AnyShapeStyle(ColorTokens.surfaceElevated),
-                                    in: RoundedRectangle(cornerRadius: AppTheme.smallCornerRadius)
-                                )
+                                .background {
+                                    if viewModel.isPaymentValid {
+                                        RoundedRectangle(cornerRadius: AppTheme.smallCornerRadius)
+                                            .fill(ColorTokens.gradientForDirection(debt.direction))
+                                    } else {
+                                        RoundedRectangle(cornerRadius: AppTheme.smallCornerRadius)
+                                            .fill(ColorTokens.surfaceElevated)
+                                    }
+                                }
                         }
                         .disabled(!viewModel.isPaymentValid)
+                        .keyboardShortcut(.defaultAction)
                         .pressable()
                     }
                     .padding(.horizontal, AppTheme.screenPadding)
@@ -99,6 +103,7 @@ struct PaymentEntryView: View {
                         dismiss()
                     }
                     .foregroundStyle(ColorTokens.textSecondary)
+                    .keyboardShortcut(.cancelAction)
                 }
             }
         }

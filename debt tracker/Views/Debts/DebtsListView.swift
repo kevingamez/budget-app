@@ -95,6 +95,10 @@ struct DebtsListView: View {
                                 .shadow(color: ColorTokens.primaryAccent.opacity(0.4), radius: 12, y: 6)
                         }
                         .pressable()
+                        .accessibilityLabel(S.tr("debts.addDebt"))
+                        #if os(iOS)
+                        .hoverEffect(.lift)
+                        #endif
                         .padding(.trailing, AppTheme.screenPadding)
                         .padding(.bottom, 16)
                     }
@@ -117,6 +121,9 @@ struct DebtsListView: View {
                 withAnimation {
                     appeared = true
                 }
+            }
+            .onReceive(NotificationCenter.default.publisher(for: .newDebtRequested)) { _ in
+                viewModel.showAddDebt = true
             }
         }
     }
@@ -165,6 +172,7 @@ struct DebtsListView: View {
             Image(systemName: "arrow.up.arrow.down")
                 .foregroundStyle(ColorTokens.primaryAccent)
         }
+        .accessibilityLabel(S.tr("debts.sort"))
     }
 
     // MARK: - Context Menu
@@ -206,10 +214,18 @@ private struct FilterButton: View {
                 .foregroundStyle(isSelected ? .white : ColorTokens.textSecondary)
                 .padding(.horizontal, 16)
                 .padding(.vertical, 10)
-                .background(
-                    isSelected ? AnyShapeStyle(ColorTokens.primaryGradient) : AnyShapeStyle(Color.clear),
-                    in: Capsule()
-                )
+                .frame(minHeight: 44)
+                .contentShape(Capsule())
+                .background {
+                    if isSelected {
+                        Capsule().fill(ColorTokens.primaryGradient)
+                    } else {
+                        Capsule().fill(Color.clear)
+                    }
+                }
         }
+        #if os(iOS)
+        .hoverEffect(.highlight)
+        #endif
     }
 }

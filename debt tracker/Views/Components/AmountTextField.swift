@@ -9,27 +9,20 @@ struct AmountTextField: View {
     @State private var showCurrencyPicker = false
     @FocusState private var isFocused: Bool
     @State private var cursorVisible = false
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
 
     private var currencySymbol: String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = currencyCode
-        return formatter.currencySymbol ?? "$"
+        CurrencyFormatting.symbol(for: currencyCode)
     }
 
     /// Display text with thousand separators
     private var displayText: String {
         guard !text.isEmpty else { return "" }
-        // Remove non-numeric chars except decimal point
         let cleaned = text.filter { $0.isNumber || $0 == "." }
         guard let number = Double(cleaned) else { return text }
 
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .decimal
-        formatter.maximumFractionDigits = 2
-        formatter.minimumFractionDigits = cleaned.contains(".") ? max(cleaned.split(separator: ".").last?.count ?? 0, 0) : 0
-        formatter.usesGroupingSeparator = true
-
+        let minFraction = cleaned.contains(".") ? max(cleaned.split(separator: ".").last?.count ?? 0, 0) : 0
+        let formatter = CurrencyFormatting.decimalFormatter(minFraction: minFraction, maxFraction: 2)
         return formatter.string(from: NSNumber(value: number)) ?? text
     }
 
@@ -156,6 +149,8 @@ struct AmountTextField: View {
 
     private func startCursorBlink() {
         cursorVisible = true
+        // Respect Reduce Motion: hold cursor steady instead of blinking forever.
+        guard !reduceMotion else { return }
         withAnimation(.easeInOut(duration: 0.5).repeatForever(autoreverses: true)) {
             cursorVisible.toggle()
         }

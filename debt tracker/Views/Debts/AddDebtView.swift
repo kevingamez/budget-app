@@ -56,6 +56,7 @@ struct AddDebtView: View {
                                         Image(systemName: "xmark.circle.fill")
                                             .foregroundStyle(ColorTokens.textTertiary)
                                     }
+                                    .accessibilityLabel(S.tr("common.clear"))
                                 }
                                 .padding(12)
                                 .background(ColorTokens.surfaceElevated, in: RoundedRectangle(cornerRadius: AppTheme.smallCornerRadius))
@@ -186,12 +187,18 @@ struct AddDebtView: View {
                                 .foregroundStyle(.white)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 16)
-                                .background(
-                                    viewModel.isValid ? AnyShapeStyle(ColorTokens.primaryGradient) : AnyShapeStyle(ColorTokens.surfaceElevated),
-                                    in: RoundedRectangle(cornerRadius: AppTheme.smallCornerRadius)
-                                )
+                                .background {
+                                    if viewModel.isValid {
+                                        RoundedRectangle(cornerRadius: AppTheme.smallCornerRadius)
+                                            .fill(ColorTokens.primaryGradient)
+                                    } else {
+                                        RoundedRectangle(cornerRadius: AppTheme.smallCornerRadius)
+                                            .fill(ColorTokens.surfaceElevated)
+                                    }
+                                }
                         }
                         .disabled(!viewModel.isValid)
+                        .keyboardShortcut(.defaultAction)
                         .pressable()
                         .padding(.top, 8)
                     }
@@ -209,6 +216,7 @@ struct AddDebtView: View {
                         dismiss()
                     }
                     .foregroundStyle(ColorTokens.textSecondary)
+                    .keyboardShortcut(.cancelAction)
                 }
             }
         }

@@ -11,6 +11,12 @@ final class DashboardViewModel {
     var topDebts: [Debt] = []
     var recentPayments: [Payment] = []
 
+    // Lifetime stats (cached aggregates)
+    var totalAmountTracked: Decimal = 0
+    var paidOffCount: Int = 0
+    var averageAmount: Decimal = 0
+    var totalPaymentAmount: Decimal = 0
+
     func refresh(debts: [Debt], payments: [Payment]) {
         let activeDebts = debts.filter { $0.derivedStatus != .paidOff && $0.derivedStatus != .forgiven }
 
@@ -37,5 +43,12 @@ final class DashboardViewModel {
             .sorted { $0.date > $1.date }
             .prefix(5)
             .map { $0 }
+
+        // Lifetime aggregates (computed once, not on every body re-render)
+        let total = debts.reduce(Decimal.zero) { $0 + $1.totalAmount }
+        totalAmountTracked = total
+        paidOffCount = debts.filter { $0.derivedStatus == .paidOff || $0.derivedStatus == .forgiven }.count
+        averageAmount = debts.isEmpty ? 0 : total / Decimal(debts.count)
+        totalPaymentAmount = payments.reduce(Decimal.zero) { $0 + $1.amount }
     }
 }
