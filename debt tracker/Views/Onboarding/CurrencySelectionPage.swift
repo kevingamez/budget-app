@@ -4,7 +4,6 @@ private let S = AppStrings.shared
 
 struct CurrencySelectionPage: View {
     @Binding var selectedCurrencyCode: String
-    @State private var appeared = false
 
     var body: some View {
         VStack(spacing: 20) {
@@ -25,7 +24,7 @@ struct CurrencySelectionPage: View {
                     .font(AppTypography.caption)
                     .foregroundStyle(ColorTokens.textTertiary)
             }
-            .staggeredAppear(index: 0, appeared: appeared)
+            .staggeredAppear(index: 0)
 
             // Currency list
             ScrollView {
@@ -38,7 +37,7 @@ struct CurrencySelectionPage: View {
                         } label: {
                             HStack(spacing: 14) {
                                 Text(currency.symbol)
-                                    .font(.system(size: 24, weight: .bold, design: .rounded))
+                                    .font(.system(.title2, design: .rounded).weight(.bold))
                                     .foregroundStyle(ColorTokens.primaryAccent)
                                     .frame(width: 36)
 
@@ -79,14 +78,9 @@ struct CurrencySelectionPage: View {
                 .padding(.horizontal, 20)
             }
             .scrollIndicators(.hidden)
-            .staggeredAppear(index: 1, appeared: appeared)
+            .staggeredAppear(index: 1)
 
             Spacer()
-        }
-        .onAppear {
-            withAnimation {
-                appeared = true
-            }
         }
     }
 }

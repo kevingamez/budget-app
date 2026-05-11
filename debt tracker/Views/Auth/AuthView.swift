@@ -5,7 +5,6 @@ private let S = AppStrings.shared
 
 struct AuthView: View {
     @State private var viewModel = AuthViewModel()
-    @State private var appeared = false
 
     var body: some View {
         ZStack {
@@ -26,7 +25,7 @@ struct AuthView: View {
                             .font(.system(size: 40, weight: .bold))
                             .foregroundStyle(.white)
                     }
-                    .staggeredAppear(index: 0, appeared: appeared)
+                    .staggeredAppear(index: 0)
 
                     // Title
                     VStack(spacing: 6) {
@@ -38,7 +37,7 @@ struct AuthView: View {
                             .font(AppTypography.subheadline)
                             .foregroundStyle(ColorTokens.textSecondary)
                     }
-                    .staggeredAppear(index: 1, appeared: appeared)
+                    .staggeredAppear(index: 1)
 
                     // Email & Password
                     VStack(spacing: 14) {
@@ -91,7 +90,7 @@ struct AuthView: View {
                         .disabled(!viewModel.isFormValid || viewModel.isLoading)
                     }
                     .padding(.horizontal, AppTheme.screenPadding)
-                    .staggeredAppear(index: 2, appeared: appeared)
+                    .staggeredAppear(index: 2)
 
                     // Error
                     if let error = viewModel.errorMessage {
@@ -128,7 +127,7 @@ struct AuthView: View {
                         Rectangle().fill(ColorTokens.surfaceBorder).frame(height: 1)
                     }
                     .padding(.horizontal, AppTheme.screenPadding)
-                    .staggeredAppear(index: 3, appeared: appeared)
+                    .staggeredAppear(index: 3)
 
                     // Social Buttons
                     VStack(spacing: 12) {
@@ -193,15 +192,12 @@ struct AuthView: View {
                         }
                     }
                     .padding(.horizontal, AppTheme.screenPadding)
-                    .staggeredAppear(index: 4, appeared: appeared)
+                    .staggeredAppear(index: 4)
 
                     Spacer().frame(height: 40)
                 }
             }
             .scrollIndicators(.hidden)
-        }
-        .onAppear {
-            withAnimation { appeared = true }
         }
     }
 }

@@ -206,7 +206,7 @@ private struct CurrencyPickerSheet: View {
                         } label: {
                             HStack(spacing: 12) {
                                 Text(currency.symbol)
-                                    .font(.system(size: 20, weight: .bold, design: .rounded))
+                                    .font(.system(.headline, design: .rounded).weight(.bold))
                                     .foregroundStyle(ColorTokens.primaryAccent)
                                     .frame(width: 32)
 

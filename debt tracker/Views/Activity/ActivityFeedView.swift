@@ -6,7 +6,6 @@ private let S = AppStrings.shared
 struct ActivityFeedView: View {
     @Query(sort: \Payment.date, order: .reverse) private var allPayments: [Payment]
     @State private var viewModel = ActivityViewModel()
-    @State private var appeared = false
 
     private var sections: [ActivityViewModel.ActivitySection] {
         viewModel.groupedPayments(from: allPayments)
@@ -45,7 +44,7 @@ struct ActivityFeedView: View {
                                             payment: payment,
                                             isLast: index == lastPaymentIndex && sectionIndex == lastSectionIndex
                                         )
-                                        .staggeredAppear(index: index, appeared: appeared)
+                                        .staggeredAppear(index: index)
                                     }
                                 }
                                 .padding(.bottom, 16)
@@ -58,11 +57,6 @@ struct ActivityFeedView: View {
                 }
             }
             .navigationTitle(S.tr("tab.activity"))
-            .onAppear {
-                withAnimation {
-                    appeared = true
-                }
-            }
         }
     }
 

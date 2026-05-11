@@ -3,8 +3,6 @@ import SwiftUI
 private let S = AppStrings.shared
 
 struct WelcomePage: View {
-    @State private var appeared = false
-
     var body: some View {
         VStack(spacing: 24) {
             Spacer()
@@ -20,7 +18,7 @@ struct WelcomePage: View {
                     .font(.system(size: 56, weight: .bold))
                     .foregroundStyle(.white)
             }
-            .staggeredAppear(index: 0, appeared: appeared)
+            .staggeredAppear(index: 0)
 
             VStack(spacing: 12) {
                 Text(S.tr("welcome.welcomeTo"))
@@ -31,14 +29,14 @@ struct WelcomePage: View {
                     .font(AppTypography.largeTitle)
                     .foregroundStyle(ColorTokens.textPrimary)
             }
-            .staggeredAppear(index: 1, appeared: appeared)
+            .staggeredAppear(index: 1)
 
             Text(S.tr("welcome.subtitle"))
                 .font(AppTypography.body)
                 .foregroundStyle(ColorTokens.textSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, 32)
-                .staggeredAppear(index: 2, appeared: appeared)
+                .staggeredAppear(index: 2)
 
             // Feature pills
             VStack(spacing: 10) {
@@ -46,15 +44,10 @@ struct WelcomePage: View {
                 featurePill(icon: "bell.fill", text: S.tr("welcome.smartReminders"))
                 featurePill(icon: "icloud.fill", text: S.tr("welcome.icloudSync"))
             }
-            .staggeredAppear(index: 3, appeared: appeared)
+            .staggeredAppear(index: 3)
 
             Spacer()
             Spacer()
-        }
-        .onAppear {
-            withAnimation {
-                appeared = true
-            }
         }
     }
 

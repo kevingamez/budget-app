@@ -4,7 +4,6 @@ private let S = AppStrings.shared
 
 struct LanguageSelectionPage: View {
     @Binding var selectedLanguage: String
-    @State private var appeared = false
 
     var body: some View {
         VStack(spacing: 20) {
@@ -25,7 +24,7 @@ struct LanguageSelectionPage: View {
                     .font(AppTypography.caption)
                     .foregroundStyle(ColorTokens.textTertiary)
             }
-            .staggeredAppear(index: 0, appeared: appeared)
+            .staggeredAppear(index: 0)
 
             // Language list
             ScrollView {
@@ -39,7 +38,7 @@ struct LanguageSelectionPage: View {
                         } label: {
                             HStack(spacing: 14) {
                                 Text(language.flag)
-                                    .font(.system(size: 28))
+                                    .font(.system(.title, design: .rounded))
 
                                 Text(language.name)
                                     .font(AppTypography.body)
@@ -78,14 +77,9 @@ struct LanguageSelectionPage: View {
                 .padding(.horizontal, 20)
             }
             .scrollIndicators(.hidden)
-            .staggeredAppear(index: 1, appeared: appeared)
+            .staggeredAppear(index: 1)
 
             Spacer()
-        }
-        .onAppear {
-            withAnimation {
-                appeared = true
-            }
         }
     }
 }

@@ -135,7 +135,7 @@ struct ProfileSettingsView: View {
                             .frame(width: 100, height: 100)
 
                         Text(viewModel.initials)
-                            .font(.system(size: 36, weight: .bold, design: .rounded))
+                            .font(.system(.largeTitle, design: .rounded).weight(.bold))
                             .foregroundStyle(.white)
                     }
 
@@ -196,7 +196,7 @@ struct ProfileSettingsView: View {
                     } label: {
                         HStack(spacing: 14) {
                             Text(language.flag)
-                                .font(.system(size: 24))
+                                .font(.system(.title2, design: .rounded))
 
                             Text(language.name)
                                 .font(AppTypography.body)

@@ -1,22 +1,22 @@
 import SwiftUI
 
 enum AppTypography {
-    static let largeTitle = Font.system(size: 34, weight: .bold, design: .rounded)
-    static let title = Font.system(size: 28, weight: .bold, design: .rounded)
-    static let title2 = Font.system(size: 22, weight: .semibold, design: .rounded)
-    static let title3 = Font.system(size: 20, weight: .semibold, design: .rounded)
-    static let headline = Font.system(size: 17, weight: .semibold, design: .rounded)
-    static let body = Font.system(size: 17, weight: .regular, design: .rounded)
-    static let callout = Font.system(size: 16, weight: .regular, design: .rounded)
-    static let subheadline = Font.system(size: 15, weight: .regular, design: .rounded)
-    static let footnote = Font.system(size: 13, weight: .regular, design: .rounded)
-    static let caption = Font.system(size: 12, weight: .regular, design: .rounded)
+    static let largeTitle = Font.system(.largeTitle, design: .rounded).weight(.bold)
+    static let title = Font.system(.title, design: .rounded).weight(.bold)
+    static let title2 = Font.system(.title2, design: .rounded).weight(.semibold)
+    static let title3 = Font.system(.title3, design: .rounded).weight(.semibold)
+    static let headline = Font.system(.headline, design: .rounded).weight(.semibold)
+    static let body = Font.system(.body, design: .rounded)
+    static let callout = Font.system(.callout, design: .rounded)
+    static let subheadline = Font.system(.subheadline, design: .rounded)
+    static let footnote = Font.system(.footnote, design: .rounded)
+    static let caption = Font.system(.caption, design: .rounded)
     /// Relative caption2 — scales with Dynamic Type. Prefer over fixed sub-11pt sizes.
     static let caption2 = Font.system(.caption2, design: .rounded)
 
     // Monospaced for currency amounts
-    static let amountLarge = Font.system(size: 36, weight: .bold, design: .rounded)
-    static let amount = Font.system(size: 28, weight: .bold, design: .rounded)
-    static let amountSmall = Font.system(size: 20, weight: .semibold, design: .rounded)
-    static let amountMono = Font.system(size: 32, weight: .bold, design: .monospaced)
+    static let amountLarge = Font.system(.largeTitle, design: .rounded).weight(.bold)
+    static let amount = Font.system(.title, design: .rounded).weight(.bold)
+    static let amountSmall = Font.system(.title3, design: .rounded).weight(.semibold)
+    static let amountMono = Font.system(.largeTitle, design: .monospaced).weight(.bold)
 }

@@ -7,7 +7,6 @@ struct DebtsListView: View {
     @Query(sort: \Debt.createdAt, order: .reverse) private var allDebts: [Debt]
     @Environment(\.modelContext) private var modelContext
     @State private var viewModel = DebtsListViewModel()
-    @State private var appeared = false
 
     private var filteredDebts: [Debt] {
         viewModel.filteredDebts(from: allDebts)
@@ -44,7 +43,7 @@ struct DebtsListView: View {
                                 ForEach(Array(filteredDebts.enumerated()), id: \.element.id) { index, debt in
                                     NavigationLink(value: debt) {
                                         DebtRowView(debt: debt)
-                                            .staggeredAppear(index: index, appeared: appeared)
+                                            .staggeredAppear(index: index)
                                     }
                                     .buttonStyle(.plain)
                                     .contextMenu {
@@ -116,11 +115,6 @@ struct DebtsListView: View {
             }
             .sheet(isPresented: $viewModel.showAddDebt) {
                 AddDebtView()
-            }
-            .onAppear {
-                withAnimation {
-                    appeared = true
-                }
             }
             .onReceive(NotificationCenter.default.publisher(for: .newDebtRequested)) { _ in
                 viewModel.showAddDebt = true

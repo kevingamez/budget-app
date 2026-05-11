@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 private let S = AppStrings.shared
 
