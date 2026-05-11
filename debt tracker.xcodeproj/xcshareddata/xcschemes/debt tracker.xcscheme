@@ -34,6 +34,20 @@
                ReferencedContainer = "container:debt tracker.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
+         <BuildActionEntry
+            buildForTesting = "YES"
+            buildForRunning = "NO"
+            buildForProfiling = "NO"
+            buildForArchiving = "NO"
+            buildForAnalyzing = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "41BBBB042F00000000000004"
+               BuildableName = "debt trackerUITests.xctest"
+               BlueprintName = "debt trackerUITests"
+               ReferencedContainer = "container:debt tracker.xcodeproj">
+            </BuildableReference>
+         </BuildActionEntry>
       </BuildActionEntries>
    </BuildAction>
    <TestAction
@@ -49,6 +63,16 @@
                BlueprintIdentifier = "41AAAA042F00000000000004"
                BuildableName = "debt trackerTests.xctest"
                BlueprintName = "debt trackerTests"
+               ReferencedContainer = "container:debt tracker.xcodeproj">
+            </BuildableReference>
+         </TestableReference>
+         <TestableReference
+            skipped = "NO">
+            <BuildableReference
+               BuildableIdentifier = "primary"
+               BlueprintIdentifier = "41BBBB042F00000000000004"
+               BuildableName = "debt trackerUITests.xctest"
+               BlueprintName = "debt trackerUITests"
                ReferencedContainer = "container:debt tracker.xcodeproj">
             </BuildableReference>
          </TestableReference>

@@ -9,6 +9,7 @@
 /* Begin PBXFileReference section */
 		411698A12F5160EE00C5148C /* debt tracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "debt tracker.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		41AAAA012F00000000000001 /* debt trackerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "debt trackerTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
+		41BBBB012F00000000000001 /* debt trackerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "debt trackerUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -20,6 +21,11 @@
 		41AAAA022F00000000000002 /* debt trackerTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = "debt trackerTests";
+			sourceTree = "<group>";
+		};
+		41BBBB022F00000000000002 /* debt trackerUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "debt trackerUITests";
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -39,6 +45,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		41BBBB032F00000000000003 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -47,6 +60,7 @@
 			children = (
 				411698A32F5160EE00C5148C /* debt tracker */,
 				41AAAA022F00000000000002 /* debt trackerTests */,
+				41BBBB022F00000000000002 /* debt trackerUITests */,
 				411698A22F5160EE00C5148C /* Products */,
 			);
 			sourceTree = "<group>";
@@ -56,6 +70,7 @@
 			children = (
 				411698A12F5160EE00C5148C /* debt tracker.app */,
 				41AAAA012F00000000000001 /* debt trackerTests.xctest */,
+				41BBBB012F00000000000001 /* debt trackerUITests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -109,6 +124,29 @@
 			productReference = 41AAAA012F00000000000001 /* debt trackerTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		41BBBB042F00000000000004 /* debt trackerUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 41BBBB052F00000000000005 /* Build configuration list for PBXNativeTarget "debt trackerUITests" */;
+			buildPhases = (
+				41BBBB062F00000000000006 /* Sources */,
+				41BBBB032F00000000000003 /* Frameworks */,
+				41BBBB072F00000000000007 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				41BBBB082F00000000000008 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				41BBBB022F00000000000002 /* debt trackerUITests */,
+			);
+			name = "debt trackerUITests";
+			packageProductDependencies = (
+			);
+			productName = "debt trackerUITests";
+			productReference = 41BBBB012F00000000000001 /* debt trackerUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -123,6 +161,10 @@
 						CreatedOnToolsVersion = 26.3;
 					};
 					41AAAA042F00000000000004 = {
+						CreatedOnToolsVersion = 26.3;
+						TestTargetID = 411698A02F5160EE00C5148C;
+					};
+					41BBBB042F00000000000004 = {
 						CreatedOnToolsVersion = 26.3;
 						TestTargetID = 411698A02F5160EE00C5148C;
 					};
@@ -147,6 +189,7 @@
 			targets = (
 				411698A02F5160EE00C5148C /* debt tracker */,
 				41AAAA042F00000000000004 /* debt trackerTests */,
+				41BBBB042F00000000000004 /* debt trackerUITests */,
 			);
 		};
 /* End PBXProject section */
@@ -160,6 +203,13 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		41AAAA072F00000000000007 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		41BBBB072F00000000000007 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -183,6 +233,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		41BBBB062F00000000000006 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -191,10 +248,22 @@
 			target = 411698A02F5160EE00C5148C /* debt tracker */;
 			targetProxy = 41AAAA092F00000000000009 /* PBXContainerItemProxy */;
 		};
+		41BBBB082F00000000000008 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 411698A02F5160EE00C5148C /* debt tracker */;
+			targetProxy = 41BBBB092F00000000000009 /* PBXContainerItemProxy */;
+		};
 /* End PBXTargetDependency section */
 
 /* Begin PBXContainerItemProxy section */
 		41AAAA092F00000000000009 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 411698992F5160EE00C5148C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 411698A02F5160EE00C5148C;
+			remoteInfo = "debt tracker";
+		};
+		41BBBB092F00000000000009 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 411698992F5160EE00C5148C /* Project object */;
 			proxyType = 1;
@@ -460,6 +529,62 @@
 			};
 			name = Release;
 		};
+		41BBBB0A2F0000000000000A /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "kevingamez.debt-trackerUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "debt tracker";
+				CODE_SIGNING_ALLOWED = NO;
+			};
+			name = Debug;
+		};
+		41BBBB0B2F0000000000000B /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 26.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "kevingamez.debt-trackerUITests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = auto;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = "debt tracker";
+				CODE_SIGNING_ALLOWED = NO;
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -486,6 +611,15 @@
 			buildConfigurations = (
 				41AAAA0A2F0000000000000A /* Debug */,
 				41AAAA0B2F0000000000000B /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		41BBBB052F00000000000005 /* Build configuration list for PBXNativeTarget "debt trackerUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				41BBBB0A2F0000000000000A /* Debug */,
+				41BBBB0B2F0000000000000B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
