@@ -12,7 +12,7 @@ struct AuthUser: Sendable {
 
 // MARK: - Supabase Config
 
-private enum SupabaseConfig {
+enum SupabaseConfig {
     static let shared: [String: String] = {
         guard let url = Bundle.main.url(forResource: "Secrets", withExtension: "plist"),
               let data = try? Data(contentsOf: url),

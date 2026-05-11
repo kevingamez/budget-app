@@ -1,0 +1,11 @@
+# Supabase project configuration for Debt Tracker.
+#
+# Only the bits needed for `supabase functions deploy` are defined here.
+# The CLI will fill in additional sections if/when local dev is set up
+# (`supabase init`); leaving them out keeps this file minimal and stable.
+
+project_id = "debt-tracker"
+
+[functions.ai-insights]
+enabled = true
+verify_jwt = true

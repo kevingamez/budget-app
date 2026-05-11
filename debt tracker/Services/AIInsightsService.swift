@@ -1,4 +1,6 @@
 import Foundation
+import Auth
+import Supabase
 
 // MARK: - AI Consent
 
@@ -43,6 +45,8 @@ enum AIInsightsError: Error {
     case decodingError
     case emptyResponse
     case consentRequired
+    case notAuthenticated
+    case proxyNotConfigured
 
     var displayMessage: String {
         let S = AppStrings.shared
@@ -54,13 +58,26 @@ enum AIInsightsError: Error {
         case .httpError(let code): return S.tr("ai.error.serverError", "\(code)")
         case .decodingError, .emptyResponse: return S.tr("ai.insights.error.title")
         case .consentRequired: return S.tr("ai.insights.error.title")
+        case .notAuthenticated: return S.tr("ai.insights.error.title")
+        case .proxyNotConfigured: return S.tr("ai.insights.error.title")
         }
     }
 }
 
-// MARK: - Secrets
+// MARK: - Model Config
+//
+// The Anthropic API key now lives only on the server (Supabase Edge Function).
+// The operator sets it once with:
+//
+//     supabase secrets set ANTHROPIC_API_KEY=sk-ant-...
+//
+// and deploys the function with:
+//
+//     supabase functions deploy ai-insights
+//
+// The client only needs to know which model to ask for.
 
-private enum Secrets {
+private enum AIModelConfig {
     static let shared: [String: String] = {
         guard let url = Bundle.main.url(forResource: "Secrets", withExtension: "plist"),
               let data = try? Data(contentsOf: url),
@@ -69,7 +86,6 @@ private enum Secrets {
         return dict
     }()
 
-    static var apiKey: String? { shared["ANTHROPIC_API_KEY"] }
     static var model: String { shared["ANTHROPIC_MODEL"] ?? "claude-sonnet-4-6" }
 }
 
@@ -79,14 +95,21 @@ protocol AIInsightsServiceProtocol: Sendable {
     func fetchInsight(for snapshot: FinancialSnapshot) async throws -> String
 }
 
-// MARK: - Anthropic Implementation
+// MARK: - Anthropic Implementation (via Supabase Edge Function proxy)
 
 final class AIInsightsService: AIInsightsServiceProtocol, Sendable {
     static let shared = AIInsightsService()
 
-    private let endpoint = URL(string: "https://api.anthropic.com/v1/messages")!
     private let anthropicVersion = "2023-06-01"
     private let maxTokens = 350
+
+    /// URL of the deployed Supabase Edge Function that proxies Anthropic calls.
+    /// The function name `ai-insights` must match `supabase/functions/ai-insights/`.
+    private var proxyURL: URL? {
+        let base = SupabaseConfig.projectURL
+        guard !base.isEmpty else { return nil }
+        return URL(string: "\(base)/functions/v1/ai-insights")
+    }
 
     func fetchInsight(for snapshot: FinancialSnapshot) async throws -> String {
         // Opt-in gate: do not transmit any financial data to a third party
@@ -95,20 +118,32 @@ final class AIInsightsService: AIInsightsServiceProtocol, Sendable {
             throw AIInsightsError.consentRequired
         }
 
-        // SECURITY TODO: proxy this through a Supabase Edge Function so the Anthropic key is not shipped in the client binary.
-        guard let apiKey = Secrets.apiKey, !apiKey.isEmpty else {
-            throw AIInsightsError.noAPIKey
+        guard let endpoint = proxyURL else {
+            throw AIInsightsError.proxyNotConfigured
+        }
+
+        // Require a Supabase session so the Edge Function's `verify_jwt`
+        // gate has something to validate. Without this the gateway returns 401.
+        let jwt: String
+        do {
+            let session = try await SupabaseAuthService.shared.client.auth.session
+            jwt = session.accessToken
+        } catch {
+            throw AIInsightsError.notAuthenticated
         }
 
         var request = URLRequest(url: endpoint)
         request.httpMethod = "POST"
         request.timeoutInterval = 20
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.setValue(apiKey, forHTTPHeaderField: "x-api-key")
+        request.setValue("Bearer \(jwt)", forHTTPHeaderField: "Authorization")
+        // anthropic-version is forwarded by the proxy; sending it from the
+        // client is harmless and lets the proxy stay version-agnostic if it
+        // ever decides to honor the header.
         request.setValue(anthropicVersion, forHTTPHeaderField: "anthropic-version")
 
         let body: [String: Any] = [
-            "model": Secrets.model,
+            "model": AIModelConfig.model,
             "max_tokens": maxTokens,
             "messages": [
                 ["role": "user", "content": buildPrompt(snapshot)]
@@ -130,8 +165,16 @@ final class AIInsightsService: AIInsightsServiceProtocol, Sendable {
 
         switch http.statusCode {
         case 200: break
-        case 401: throw AIInsightsError.invalidKey
+        case 401: throw AIInsightsError.notAuthenticated
         case 429: throw AIInsightsError.rateLimited
+        case 500:
+            // The proxy returns 500 with {"error":"server misconfigured"} when
+            // ANTHROPIC_API_KEY is not set on the function.
+            if let json = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+               (json["error"] as? String) == "server misconfigured" {
+                throw AIInsightsError.noAPIKey
+            }
+            throw AIInsightsError.httpError(500)
         default: throw AIInsightsError.httpError(http.statusCode)
         }
 
