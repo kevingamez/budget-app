@@ -130,11 +130,13 @@ final class SupabaseAuthService {
 
     /// Sign out and wipe every piece of user-scoped local state.
     ///
-    /// Pass the active `ModelContext` so SwiftData entities (debts, payments,
-    /// people, categories) are deleted along with auth state. Without it the
-    /// next account that signs in on this device would see the previous user's
-    /// debts — a cross-account leak.
-    func signOut(modelContext: ModelContext? = nil) async {
+    /// The `ModelContext` is **required** so SwiftData entities (debts,
+    /// payments, people, categories) are deleted along with auth state.
+    /// Without it the next account that signs in on this device would see
+    /// the previous user's debts — a cross-account leak. There used to be a
+    /// `modelContext: ModelContext? = nil` overload; it was removed because
+    /// nothing in the app should sign out without holding a context.
+    func signOut(modelContext: ModelContext) async {
         do {
             try await client.auth.signOut()
         } catch {
@@ -148,17 +150,15 @@ final class SupabaseAuthService {
         ProfilePhotoStorage.delete()
         BiometricAuthService.shared.lock()
 
-        if let modelContext {
-            do {
-                // Order matters for cascade rules: delete dependents first.
-                try modelContext.delete(model: Payment.self)
-                try modelContext.delete(model: Debt.self)
-                try modelContext.delete(model: Person.self)
-                try modelContext.delete(model: DebtCategory.self)
-                try modelContext.save()
-            } catch {
-                Self.log.error("SwiftData wipe on signOut failed: \(String(describing: error), privacy: .public)")
-            }
+        do {
+            // Order matters for cascade rules: delete dependents first.
+            try modelContext.delete(model: Payment.self)
+            try modelContext.delete(model: Debt.self)
+            try modelContext.delete(model: Person.self)
+            try modelContext.delete(model: DebtCategory.self)
+            try modelContext.save()
+        } catch {
+            Self.log.error("SwiftData wipe on signOut failed: \(String(describing: error), privacy: .public)")
         }
 
         // Clear user-scoped UserDefaults: profile-tied keys, security pref, AI

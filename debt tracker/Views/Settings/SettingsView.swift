@@ -11,6 +11,7 @@ struct SettingsView: View {
     @Query private var persons: [Person]
     @State private var viewModel = SettingsViewModel()
     @AppStorage("requireBiometrics") private var requireBiometrics = false
+    @AppStorage(AIConsent.key) private var aiConsentGranted = false
     @AppStorage("userName") private var userName = ""
     @State private var profilePhotoData: Data?
     @State private var showSignOutConfirmation = false
@@ -31,6 +32,7 @@ struct SettingsView: View {
                             biometricIcon: viewModel.biometricIcon,
                             biometricLabel: viewModel.biometricLabel
                         )
+                        AIInsightsSection(consentGranted: $aiConsentGranted)
                         DataSection(
                             onExport: handleExport,
                             onLoadSample: { viewModel.showSeedConfirmation = true },

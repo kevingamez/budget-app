@@ -27,6 +27,12 @@ final class SettingsViewModel {
     var biometricsAvailable = false
     var biometricType: LABiometryType = .none
 
+    private let notifications: any NotificationServiceProtocol
+
+    init(notifications: any NotificationServiceProtocol = NotificationService.shared) {
+        self.notifications = notifications
+    }
+
     func refreshStats(debts: [Debt], payments: [Payment], persons: [Person]) {
         totalDebtsCount = debts.count
         totalAmountTracked = debts.reduce(Decimal.zero) { $0 + $1.totalAmount }
@@ -62,11 +68,16 @@ final class SettingsViewModel {
     }
 
     func checkNotificationStatus() async {
-        notificationStatus = await NotificationService.shared.checkPermissionStatus()
+        notificationStatus = await notifications.checkPermissionStatus()
         notificationsEnabled = notificationStatus == .authorized
     }
 
     func seedSampleData(context: ModelContext) {
+        // Idempotent: wipe existing rows first so repeated taps don't pile up
+        // duplicate categories / people / debts. Matches Android behaviour in
+        // `SettingsViewModel.loadSample()`.
+        SampleDataService.clearAll(context: context)
+        notifications.cancelAllReminders()
         SampleDataService.seedSampleData(context: context)
         dataSeedComplete = true
     }
@@ -76,7 +87,7 @@ final class SettingsViewModel {
         // "Clear All Data" should mean *all* local data, not just SwiftData
         // rows. Profile photo, pending notifications, and any cached AI
         // insights all live outside the store and were otherwise left behind.
-        NotificationService.shared.cancelAllReminders()
+        notifications.cancelAllReminders()
         ProfilePhotoStorage.delete()
         let defaults = UserDefaults.standard
         for key in defaults.dictionaryRepresentation().keys where key.hasPrefix("ai_insights_cache") {

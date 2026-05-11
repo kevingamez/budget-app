@@ -7,6 +7,13 @@ plugins {
     alias(libs.plugins.hilt)
 }
 
+// Room exports JSON snapshots of every schema version to `app/schemas/`. The
+// directory is checked into git so schema drift shows up in code review and
+// migration tests can replay any pair of versions.
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
+
 android {
     namespace = "com.kevingamez.debttracker"
     compileSdk = 34

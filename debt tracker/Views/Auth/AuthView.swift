@@ -175,26 +175,6 @@ struct AuthView: View {
                         .signInWithAppleButtonStyle(.white)
                         .frame(height: 50)
                         .cornerRadius(AppTheme.smallCornerRadius)
-
-                        // Google Sign In (custom button)
-                        Button {
-                            // Google sign in requires more setup (OAuth client ID)
-                            viewModel.errorMessage = S.tr("auth.googleNotConfigured")
-                        } label: {
-                            HStack(spacing: 10) {
-                                Image(systemName: "globe")
-                                    .font(.system(size: 18, weight: .semibold))
-                                Text(S.tr("auth.signInGoogle"))
-                                    .font(AppTypography.headline)
-                            }
-                            .foregroundStyle(ColorTokens.textPrimary)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 14)
-                            .background(
-                                RoundedRectangle(cornerRadius: AppTheme.smallCornerRadius)
-                                    .fill(ColorTokens.surface)
-                            )
-                        }
                     }
                     .padding(.horizontal, AppTheme.screenPadding)
                     .staggeredAppear(index: 4)

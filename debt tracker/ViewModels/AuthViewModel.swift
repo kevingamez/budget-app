@@ -75,9 +75,9 @@ final class AuthViewModel {
         }
     }
 
-    // MARK: - Sign Out
-
-    func signOut() async {
-        await authService.signOut()
-    }
+    // Note: there is intentionally no `signOut()` shortcut on this VM. Sign-out
+    // requires a `ModelContext` so the previous user's SwiftData rows are
+    // wiped — call `SupabaseAuthService.shared.signOut(modelContext:)` from a
+    // place that already owns the `@Environment(\.modelContext)`. Settings is
+    // that place today; auth view never signs the user out.
 }

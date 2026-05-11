@@ -106,6 +106,22 @@ extension AppStrings {
             "ja": "AI\u{30A4}\u{30F3}\u{30B5}\u{30A4}\u{30C8}",
             "ko": "AI \u{C778}\u{C0AC}\u{C774}\u{D2B8}",
         ],
+        "ai.settings.consentToggle": [
+            "en": "Allow AI Insights",
+            "es": "Permitir perspectivas IA",
+            "fr": "Autoriser les aper\u{00E7}us IA",
+            "pt": "Permitir perspectivas IA",
+            "ja": "AI\u{30A4}\u{30F3}\u{30B5}\u{30A4}\u{30C8}\u{3092}\u{8A31}\u{53EF}",
+            "ko": "AI \u{C778}\u{C0AC}\u{C774}\u{D2B8} \u{D5C8}\u{C6A9}",
+        ],
+        "ai.settings.consentSubtitle": [
+            "en": "Send an anonymized financial summary to Anthropic via our Supabase proxy.",
+            "es": "Env\u{00ED}a un resumen financiero an\u{00F3}nimo a Anthropic v\u{00ED}a nuestro proxy Supabase.",
+            "fr": "Envoyer un r\u{00E9}sum\u{00E9} financier anonymis\u{00E9} \u{00E0} Anthropic via notre proxy Supabase.",
+            "pt": "Envia um resumo financeiro an\u{00F4}nimo \u{00E0} Anthropic via nosso proxy Supabase.",
+            "ja": "Supabase\u{30D7}\u{30ED}\u{30AD}\u{30B7}\u{7D4C}\u{7531}\u{3067}\u{533F}\u{540D}\u{306E}\u{8CA1}\u{52D9}\u{8981}\u{7D04}\u{3092}Anthropic\u{306B}\u{9001}\u{4FE1}\u{3057}\u{307E}\u{3059}\u{3002}",
+            "ko": "\u{C775}\u{B204} \u{CC98}\u{B9AC}\u{B41C} \u{C7AC}\u{BB34} \u{C694}\u{C57D}\u{C744} Supabase \u{D504}\u{B85D}\u{C2DC}\u{B97C} \u{D1B5}\u{D574} Anthropic\u{C5D0} \u{C804}\u{C1A1}\u{D569}\u{B2C8}\u{B2E4}.",
+        ],
         "ai.settings.keyHeader": [
             "en": "ANTHROPIC API KEY",
             "es": "CLAVE API ANTHROPIC",

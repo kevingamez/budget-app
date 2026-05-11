@@ -1,13 +1,13 @@
 # AGENTS.md - Debt Tracker
 
 ## Project Overview
-- **Type:** iOS app (SwiftUI + SwiftData)
-- **Target:** iOS 17+ (deployment target 26.2)
+- **Type:** iOS/macOS app (SwiftUI + SwiftData) with a sibling Android port (`android/`) and a Supabase Edge Function (`supabase/functions/ai-insights/`).
+- **Target:** iOS/macOS 17+ (deployment target 26.2). Android `minSdk = 26`, `targetSdk = 34`.
 - **Xcode project:** `debt tracker.xcodeproj` — uses `PBXFileSystemSynchronizedRootGroup` (new files on disk are auto-discovered, no pbxproj edits needed)
 - **Bundle ID:** `kevingamez.debt-tracker`
-- **Main source:** `debt tracker/` directory
-- **Swift concurrency:** `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor` (Swift 6 strict concurrency)
-- **Zero third-party dependencies** — all Apple first-party frameworks
+- **Main source:** `debt tracker/` directory (iOS/macOS), `android/app/src/main/java/com/kevingamez/debttracker/` (Android), `supabase/` (Edge Function + migrations).
+- **Swift concurrency:** `SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor`, `SWIFT_VERSION = 6.0` (Swift 6 strict concurrency).
+- **Third-party SDKs:** `supabase-swift` (auth + functions) on iOS; `supabase-kt`, Hilt, Room, SQLCipher, AndroidX Biometric on Android. No analytics, no ad SDKs.
 
 ## Architecture & Conventions
 
@@ -28,11 +28,12 @@
 - ViewModels receive `ModelContext` as method parameters — never stored as properties
 - Views never call `ModelContext.insert/delete` directly — always through ViewModel methods
 
-### SwiftData Requirements (CloudKit Compatibility)
-- All relationships must be optional
+### SwiftData Requirements
+The store is **local-only** (Application Support `.sqlite` with `.complete` file protection). The schema is kept CloudKit-compatible so a future opt-in CloudKit container can be added without a migration, but no `CloudKitContainerOptions` is configured today and the app does not sync.
+- All relationships must be optional (CloudKit-compatible)
 - Arrays default to `[]`
-- No `@Attribute(.unique)` — CloudKit doesn't support unique constraints
-- UUIDs set in `init()`, not via @Attribute
+- No `@Attribute(.unique)` (CloudKit-compatible)
+- UUIDs set in `init()`, not via `@Attribute`
 - Enum defaults must be fully qualified (e.g., `DebtDirection.owedToMe`, not `.owedToMe`) — SwiftData macro requirement
 - `Decimal` for all monetary values (no floating-point)
 - `@Attribute(.externalStorage)` on image/photo data
@@ -64,11 +65,13 @@ debt tracker/
 - Theme enums: `ColorTokens`, `AppTypography`, `AppAnimations`, `AppTheme`
 
 ### Security Practices
-- No hardcoded secrets or API keys
-- Input validation through `Decimal` parsing for all amounts
-- No sensitive financial details in notification content
-- CloudKit handles auth + encryption (Apple managed)
-- Local notifications processed entirely on-device
+- No hardcoded secrets or API keys (Anthropic key lives only as a Supabase Edge Function secret).
+- Input validation through `Decimal` parsing for all amounts.
+- No sensitive financial details in notification content.
+- iOS: SwiftData store uses `.complete` file protection on the store + WAL/SHM + `.externalStorage` blob folder; biometric lock gates the UI.
+- Android: Room DB is encrypted-at-rest via SQLCipher with a Keystore-wrapped passphrase in `EncryptedSharedPreferences`; `BiometricPrompt` gates the finance UI on every foreground entry.
+- AI proxy (`supabase/functions/ai-insights/index.ts`) accepts only `{consent, snapshot}`, rejects unknown fields, caps body size, pins the model + token budget server-side, and rate-limits per user via the `ai_usage_increment` SECURITY DEFINER RPC (`supabase/migrations/`).
+- Apple Sign In nonce is single-use: minted fresh in `onRequest` and cleared in every terminal path.
 
 ### Design System
 - **Theme:** Dark modern — near-black background (#0A0A0F), navy surface (#1A1A2E)

@@ -15,6 +15,12 @@ final class DebtDetailViewModel {
     var paymentDate: Date = Date()
     var paymentNotes: String = ""
 
+    private let notifications: any NotificationServiceProtocol
+
+    init(notifications: any NotificationServiceProtocol = NotificationService.shared) {
+        self.notifications = notifications
+    }
+
     var parsedPaymentAmount: Decimal {
         InputBounds.clamp(amount: Decimal(string: paymentAmountString) ?? 0)
     }
@@ -46,7 +52,7 @@ final class DebtDetailViewModel {
 
         // Cancel reminder if this payment fully pays off the debt.
         if debt.remainingAmount <= 0, let identifier = debt.notificationIdentifier {
-            NotificationService.shared.cancelReminder(identifier: identifier)
+            notifications.cancelReminder(identifier: identifier)
             debt.notificationIdentifier = nil
         }
 
@@ -63,7 +69,7 @@ final class DebtDetailViewModel {
         debt.status = .forgiven
         debt.updatedAt = Date()
         if let identifier = debt.notificationIdentifier {
-            NotificationService.shared.cancelReminder(identifier: identifier)
+            notifications.cancelReminder(identifier: identifier)
             debt.notificationIdentifier = nil
         }
         do {
@@ -76,7 +82,7 @@ final class DebtDetailViewModel {
 
     func deleteDebt(_ debt: Debt, context: ModelContext) {
         if let identifier = debt.notificationIdentifier {
-            NotificationService.shared.cancelReminder(identifier: identifier)
+            notifications.cancelReminder(identifier: identifier)
         }
         context.delete(debt)
         do {

@@ -164,6 +164,14 @@ struct ProfileSettingsView: View {
                     .tint(ColorTokens.primaryAccent)
             }
 
+            if let photoError = viewModel.photoErrorMessage {
+                Text(photoError)
+                    .font(AppTypography.caption)
+                    .foregroundStyle(ColorTokens.red)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 8)
+            }
+
             if viewModel.hasPhoto {
                 Button {
                     withAnimation(AppAnimations.cardSpring) {

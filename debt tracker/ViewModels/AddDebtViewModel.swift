@@ -18,6 +18,15 @@ final class AddDebtViewModel {
     var reminderEnabled: Bool = false
     var reminderDate: Date = Date()
 
+    /// Injected so tests can swap a deterministic fake. Defaults to the
+    /// process-wide singleton so production callers (`@State private var
+    /// viewModel = AddDebtViewModel()`) keep working unchanged.
+    private let notifications: any NotificationServiceProtocol
+
+    init(notifications: any NotificationServiceProtocol = NotificationService.shared) {
+        self.notifications = notifications
+    }
+
     var isValid: Bool {
         !title.trimmingCharacters(in: .whitespaces).isEmpty && parsedAmount > 0
     }
@@ -91,7 +100,7 @@ final class AddDebtViewModel {
             let scheduledDate = reminderDate
             let debtID = debt.id.uuidString
             Task { @MainActor in
-                let notifId = await NotificationService.shared.scheduleReminder(
+                let notifId = await notifications.scheduleReminder(
                     id: debtID,
                     personName: personName,
                     title: debtTitle,

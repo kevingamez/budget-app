@@ -41,7 +41,10 @@ object AppModule {
         val factory = SupportFactory(passphrase, null, /* clearPassphrase = */ true)
         return Room.databaseBuilder(ctx, AppDatabase::class.java, AppDatabase.DB_NAME)
             .openHelperFactory(factory)
-            .fallbackToDestructiveMigration()
+            // No `fallbackToDestructiveMigration()` — for a finance app the
+            // user's debts must survive every upgrade. Each schema bump in
+            // [AppDatabase] must ship with a matching [Migration] entry.
+            .addMigrations(*AppDatabase.ALL_MIGRATIONS)
             .build()
     }
 

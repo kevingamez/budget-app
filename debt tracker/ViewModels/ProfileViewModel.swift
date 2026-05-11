@@ -8,6 +8,9 @@ final class ProfileViewModel {
     var selectedPhotoItem: PhotosPickerItem?
     var profileImageData: Data?
     var isLoadingPhoto: Bool = false
+    /// Last photo error, surfaced to the view as a localized message. Cleared
+    /// when the user successfully saves a new photo.
+    var photoErrorMessage: String?
 
     func loadExistingProfile() {
         name = UserDefaults.standard.string(forKey: "userName") ?? ""
@@ -20,10 +23,29 @@ final class ProfileViewModel {
 
     func loadPhoto(from item: PhotosPickerItem) async {
         isLoadingPhoto = true
+        photoErrorMessage = nil
         defer { isLoadingPhoto = false }
 
-        guard let data = try? await item.loadTransferable(type: Data.self) else { return }
-        ProfilePhotoStorage.save(data)
+        let data: Data?
+        do {
+            data = try await item.loadTransferable(type: Data.self)
+        } catch {
+            photoErrorMessage = error.localizedDescription
+            return
+        }
+        guard let data else {
+            photoErrorMessage = AppStrings.shared.tr("profile.photoLoadFailed")
+            return
+        }
+        do {
+            try ProfilePhotoStorage.saveThrowing(data)
+        } catch {
+            // Surface the failure (size cap, full disk, protection class
+            // rejection) instead of silently swallowing it like the old
+            // `ProfilePhotoStorage.save(_:)` shortcut did.
+            photoErrorMessage = error.localizedDescription
+            return
+        }
         profileImageData = ProfilePhotoStorage.load()
     }
 

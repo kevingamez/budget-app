@@ -32,7 +32,8 @@ Debt Tracker is a personal finance tool for keeping track of money owed to you a
 | Layer | Technology |
 |-------|-----------|
 | **Framework** | SwiftUI (Declarative UI) |
-| **Persistence** | SwiftData (local-only `.sqlite` in Application Support, `.complete` file protection) |
+| **Persistence (iOS/macOS)** | SwiftData (local-only `.sqlite` in Application Support, `.complete` file protection). The schema is CloudKit-shaped so a future opt-in container can be added, but no CloudKit sync is wired today. |
+| **Persistence (Android)** | Room over SQLCipher (encrypted-at-rest). Passphrase lives in `EncryptedSharedPreferences` wrapped by the Android Keystore. |
 | **Sync** | None automatic. Data stays on-device. |
 | **Concurrency** | Swift 6 strict concurrency (`MainActor` isolation) |
 | **Account auth** | Supabase Auth (email + Sign in with Apple) |

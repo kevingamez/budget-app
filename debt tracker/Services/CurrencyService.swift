@@ -38,6 +38,10 @@ final class CurrencyService {
 
         isLoading = true
         errorMessage = nil
+        // `defer` so isLoading flips back to false on *every* exit — including
+        // early returns (bad URL) and thrown errors. The previous shape only
+        // cleared it on the happy path and the catch arm.
+        defer { isLoading = false }
 
         do {
             guard let url = URL(string: baseURL) else { return }
@@ -60,8 +64,6 @@ final class CurrencyService {
         } catch {
             errorMessage = "Could not fetch exchange rates"
         }
-
-        isLoading = false
     }
 
     /// Drop entries that are NaN, infinite, non-positive, or absurdly large.

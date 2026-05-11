@@ -30,6 +30,12 @@ final class DebtsListViewModel {
     var sortOption: DebtSortOption = .dateCreated
     var showAddDebt: Bool = false
 
+    private let notifications: any NotificationServiceProtocol
+
+    init(notifications: any NotificationServiceProtocol = NotificationService.shared) {
+        self.notifications = notifications
+    }
+
     func filteredDebts(from allDebts: [Debt]) -> [Debt] {
         var result = allDebts
 
@@ -65,7 +71,7 @@ final class DebtsListViewModel {
 
     func deleteDebt(_ debt: Debt, context: ModelContext) {
         if let identifier = debt.notificationIdentifier {
-            NotificationService.shared.cancelReminder(identifier: identifier)
+            notifications.cancelReminder(identifier: identifier)
         }
         context.delete(debt)
         do {
@@ -87,7 +93,7 @@ final class DebtsListViewModel {
         // Do not mutate debt.status — derivedStatus returns .paidOff automatically when remainingAmount <= 0.
 
         if let identifier = debt.notificationIdentifier {
-            NotificationService.shared.cancelReminder(identifier: identifier)
+            notifications.cancelReminder(identifier: identifier)
             debt.notificationIdentifier = nil
         }
 

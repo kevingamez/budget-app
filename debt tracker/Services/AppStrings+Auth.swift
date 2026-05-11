@@ -74,14 +74,6 @@ extension AppStrings {
             "ja": "Apple\u{3067}\u{30B5}\u{30A4}\u{30F3}\u{30A4}\u{30F3}",
             "ko": "Apple\u{B85C} \u{B85C}\u{ADF8}\u{C778}",
         ],
-        "auth.signInGoogle": [
-            "en": "Sign in with Google",
-            "es": "Iniciar con Google",
-            "fr": "Se connecter avec Google",
-            "pt": "Entrar com Google",
-            "ja": "Google\u{3067}\u{30B5}\u{30A4}\u{30F3}\u{30A4}\u{30F3}",
-            "ko": "Google\u{B85C} \u{B85C}\u{ADF8}\u{C778}",
-        ],
         "auth.haveAccount": [
             "en": "Already have an account?",
             "es": "\u{00BF}Ya tienes cuenta?",
@@ -129,14 +121,6 @@ extension AppStrings {
             "pt": "Insira um e-mail v\u{00E1}lido e senha (6+ caracteres).",
             "ja": "\u{6709}\u{52B9}\u{306A}\u{30E1}\u{30FC}\u{30EB}\u{3068}\u{30D1}\u{30B9}\u{30EF}\u{30FC}\u{30C9}\u{FF08}6\u{6587}\u{5B57}\u{4EE5}\u{4E0A}\u{FF09}\u{3092}\u{5165}\u{529B}\u{3057}\u{3066}\u{304F}\u{3060}\u{3055}\u{3044}\u{3002}",
             "ko": "\u{C720}\u{D6A8}\u{D55C} \u{C774}\u{BA54}\u{C77C}\u{ACFC} \u{BE44}\u{BC00}\u{BC88}\u{D638}(6\u{C790} \u{C774}\u{C0C1})\u{B97C} \u{C785}\u{B825}\u{D558}\u{C138}\u{C694}.",
-        ],
-        "auth.googleNotConfigured": [
-            "en": "Google Sign In requires configuration. See setup guide.",
-            "es": "Google Sign In requiere configuraci\u{00F3}n. Consulta la gu\u{00ED}a.",
-            "fr": "La connexion Google n\u{00E9}cessite une configuration. Voir le guide.",
-            "pt": "Login com Google requer configura\u{00E7}\u{00E3}o. Veja o guia.",
-            "ja": "Google\u{30B5}\u{30A4}\u{30F3}\u{30A4}\u{30F3}\u{306B}\u{306F}\u{8A2D}\u{5B9A}\u{304C}\u{5FC5}\u{8981}\u{3067}\u{3059}\u{3002}\u{30BB}\u{30C3}\u{30C8}\u{30A2}\u{30C3}\u{30D7}\u{30AC}\u{30A4}\u{30C9}\u{3092}\u{3054}\u{89A7}\u{304F}\u{3060}\u{3055}\u{3044}\u{3002}",
-            "ko": "Google \u{B85C}\u{ADF8}\u{C778}\u{C5D0}\u{B294} \u{C124}\u{C815}\u{C774} \u{D544}\u{C694}\u{D569}\u{B2C8}\u{B2E4}. \u{C124}\u{C815} \u{AC00}\u{C774}\u{B4DC}\u{B97C} \u{CC38}\u{C870}\u{D558}\u{C138}\u{C694}.",
         ],
         "auth.providerApple": [
             "en": "Signed in with Apple",

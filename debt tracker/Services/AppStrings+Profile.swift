@@ -66,6 +66,14 @@ extension AppStrings {
             "ja": "\u{5199}\u{771F}\u{3092}\u{524A}\u{9664}",
             "ko": "\u{C0AC}\u{C9C4} \u{C0AD}\u{C81C}",
         ],
+        "profile.photoLoadFailed": [
+            "en": "Couldn't read that photo. Try a different one.",
+            "es": "No se pudo leer la foto. Intenta con otra.",
+            "fr": "Impossible de lire cette photo. Essayez-en une autre.",
+            "pt": "N\u{00E3}o foi poss\u{00ED}vel ler a foto. Tente outra.",
+            "ja": "\u{5199}\u{771F}\u{3092}\u{8AAD}\u{307F}\u{8FBC}\u{3081}\u{307E}\u{305B}\u{3093}\u{3067}\u{3057}\u{305F}\u{3002}\u{5225}\u{306E}\u{5199}\u{771F}\u{3092}\u{304A}\u{8A66}\u{3057}\u{304F}\u{3060}\u{3055}\u{3044}\u{3002}",
+            "ko": "\u{C0AC}\u{C9C4}\u{C744} \u{C77D}\u{C744} \u{C218} \u{C5C6}\u{C2B5}\u{B2C8}\u{B2E4}. \u{B2E4}\u{B978} \u{C0AC}\u{C9C4}\u{C744} \u{C2DC}\u{B3C4}\u{D558}\u{C138}\u{C694}.",
+        ],
         "notifications.title": [
             "en": "Notifications",
             "es": "Notificaciones",

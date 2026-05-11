@@ -37,12 +37,16 @@ fun AddDebtScreen(onDone: () -> Unit, vm: AddDebtViewModel = hiltViewModel()) {
                     TextButton(
                         enabled = title.isNotBlank() && amount.toBigDecimalOrNull() != null,
                         onClick = {
+                            // No trimming/truncation here — the VM enforces
+                            // the same bounds for every caller (including
+                            // future screens, deep-links, and tests). The
+                            // UI just hands the raw values over.
                             vm.save(
-                                title = title.trim().take(120),
+                                title = title,
                                 amountString = amount,
                                 direction = direction,
-                                personName = personName.trim().take(120),
-                                notes = notes.trim().take(2000).ifBlank { null }
+                                personName = personName,
+                                notes = notes.ifBlank { null }
                             )
                             onDone()
                         }

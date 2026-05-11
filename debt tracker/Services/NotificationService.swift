@@ -2,6 +2,7 @@ import UserNotifications
 
 protocol NotificationServiceProtocol: Sendable {
     func requestPermission() async -> Bool
+    func checkPermissionStatus() async -> UNAuthorizationStatus
     func scheduleReminder(id: String, personName: String, title: String, direction: DebtDirection, reminderDate: Date, existingIdentifier: String?) async -> String?
     func cancelReminder(identifier: String)
     func cancelAllReminders()
