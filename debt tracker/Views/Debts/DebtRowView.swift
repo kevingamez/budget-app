@@ -5,6 +5,8 @@ private let S = AppStrings.shared
 struct DebtRowView: View {
     let debt: Debt
 
+    @Environment(\.dynamicTypeSize) private var typeSize
+
     /// Cached per-render snapshot so `payments`-walking computed properties
     /// (`derivedStatus`, `progressFraction`, `isOverdue`, `remainingAmount`)
     /// are evaluated once per body instead of 4+ times.
@@ -26,7 +28,7 @@ struct DebtRowView: View {
 
     var body: some View {
         let d = display
-        HStack(spacing: 14) {
+        adaptiveContainer {
             // Avatar
             PersonAvatarView(person: debt.person, size: .medium)
 
@@ -63,14 +65,18 @@ struct DebtRowView: View {
                 }
             }
 
-            Spacer()
+            if typeSize < .accessibility1 {
+                Spacer()
+            }
 
             // Amount + Progress
-            VStack(alignment: .trailing, spacing: 4) {
+            VStack(alignment: typeSize >= .accessibility1 ? .leading : .trailing, spacing: 4) {
                 Text(debt.totalAmount.currencyFormatted)
                     .font(AppTypography.amountSmall)
                     .foregroundStyle(ColorTokens.colorForDirection(debt.direction))
                     .contentTransition(.numericText())
+                    .lineLimit(1)
+                    .minimumScaleFactor(0.8)
 
                 if d.progress > 0 && d.status != .paidOff {
                     AnimatedProgressBar(
@@ -109,5 +115,17 @@ struct DebtRowView: View {
         .accessibilityElement(children: .combine)
         .accessibilityLabel(S.tr("a11y.debt.row", debt.personName, debt.totalAmount.currencyFormatted, d.status.label))
         .accessibilityHint(S.tr("a11y.debt.row.hint"))
+    }
+
+    /// Horizontal layout normally; vertical (avatar + info + amount stacked) at
+    /// accessibility sizes so the amount column doesn't crush the name.
+    @ViewBuilder
+    private func adaptiveContainer<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+        if typeSize >= .accessibility1 {
+            VStack(alignment: .leading, spacing: 12) { content() }
+                .frame(maxWidth: .infinity, alignment: .leading)
+        } else {
+            HStack(spacing: 14) { content() }
+        }
     }
 }

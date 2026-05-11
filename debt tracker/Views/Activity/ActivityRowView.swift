@@ -6,6 +6,8 @@ struct ActivityRowView: View {
     let payment: Payment
     let isLast: Bool
 
+    @Environment(\.dynamicTypeSize) private var typeSize
+
     private var direction: DebtDirection {
         payment.debt?.direction ?? .owedToMe
     }
@@ -29,7 +31,7 @@ struct ActivityRowView: View {
             .frame(width: 10)
 
             // Content
-            HStack(spacing: 12) {
+            contentLayout {
                 PersonAvatarView(person: payment.debt?.person, size: .small)
 
                 VStack(alignment: .leading, spacing: 4) {
@@ -51,12 +53,16 @@ struct ActivityRowView: View {
                     }
                 }
 
-                Spacer()
+                if typeSize < .accessibility1 {
+                    Spacer()
+                }
 
-                VStack(alignment: .trailing, spacing: 4) {
+                VStack(alignment: typeSize >= .accessibility1 ? .leading : .trailing, spacing: 4) {
                     Text(payment.amount.currencyFormatted)
                         .font(AppTypography.amountSmall)
                         .foregroundStyle(ColorTokens.colorForDirection(direction))
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.8)
 
                     Text(payment.date.relativeFormatted)
                         .font(AppTypography.caption)
@@ -74,5 +80,16 @@ struct ActivityRowView: View {
                 payment.date.relativeFormatted
             )
         )
+    }
+
+    /// At accessibility sizes the amount drops below the name+meta column.
+    @ViewBuilder
+    private func contentLayout<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+        if typeSize >= .accessibility1 {
+            VStack(alignment: .leading, spacing: 8) { content() }
+                .frame(maxWidth: .infinity, alignment: .leading)
+        } else {
+            HStack(spacing: 12) { content() }
+        }
     }
 }
