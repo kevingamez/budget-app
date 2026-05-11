@@ -116,7 +116,10 @@ final class AppleSignInService: NSObject, ASAuthorizationControllerDelegate {
 
     private func randomNonceString(length: Int = 32) -> String {
         var bytes = [UInt8](repeating: 0, count: length)
-        _ = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
+        // Surface entropy-pool failures loudly — silently returning zeroed
+        // bytes would weaken the OIDC nonce to a constant.
+        let status = SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes)
+        precondition(status == errSecSuccess, "SecRandomCopyBytes failed: \(status)")
         let charset = Array("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz-._")
         return String(bytes.map { charset[Int($0) % charset.count] })
     }

@@ -81,12 +81,26 @@ enum SampleDataService {
         }
     }
 
+    /// Wipe every entity. We fetch + delete one at a time instead of using
+    /// `context.delete(model:)` (batch delete) — the batch path skips cascade
+    /// rules and trips SwiftData's "mandatory OTO nullify inverse" constraint
+    /// on `Payment.debt` (CocoaError 134050), leaving Payments behind on every
+    /// "Clear All Data" tap. Per-object delete fires cascades the right way.
     static func clearAll(context: ModelContext) {
         do {
-            try context.delete(model: Payment.self)
-            try context.delete(model: Debt.self)
-            try context.delete(model: Person.self)
-            try context.delete(model: DebtCategory.self)
+            for payment in try context.fetch(FetchDescriptor<Payment>()) {
+                context.delete(payment)
+            }
+            for debt in try context.fetch(FetchDescriptor<Debt>()) {
+                context.delete(debt)
+            }
+            for person in try context.fetch(FetchDescriptor<Person>()) {
+                context.delete(person)
+            }
+            for category in try context.fetch(FetchDescriptor<DebtCategory>()) {
+                context.delete(category)
+            }
+            try context.save()
         } catch {
             sampleDataLog.error("Failed to clear data: \(String(describing: error), privacy: .public)")
         }

@@ -54,10 +54,23 @@ struct DataSection: View {
 }
 
 /// Pasteboard helper used by Settings's "Export Summary" action.
+///
+/// On iOS the payload is marked `.localOnly` (so it isn't pushed to other
+/// devices via Universal Clipboard) and given a 60-second expiry so debt
+/// names + amounts don't linger indefinitely in system paste history.
+/// AppKit's NSPasteboard offers no equivalent expiration knob, so on macOS
+/// the user must clear the clipboard themselves.
 enum ClipboardWriter {
     static func write(_ string: String) {
         #if canImport(UIKit)
-        UIPasteboard.general.string = string
+        let expiry = Date().addingTimeInterval(60)
+        UIPasteboard.general.setItems(
+            [["public.utf8-plain-text": string]],
+            options: [
+                .localOnly: true,
+                .expirationDate: expiry,
+            ]
+        )
         #elseif canImport(AppKit)
         NSPasteboard.general.clearContents()
         NSPasteboard.general.setString(string, forType: .string)

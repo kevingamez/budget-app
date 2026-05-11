@@ -47,20 +47,48 @@ enum AIInsightsError: Error {
     case consentRequired
     case notAuthenticated
     case proxyNotConfigured
+    case dailyLimitReached
 
     var displayMessage: String {
         let S = AppStrings.shared
         switch self {
         case .noAPIKey: return S.tr("ai.insights.error.title")
         case .invalidKey: return S.tr("ai.error.invalidKey")
-        case .rateLimited: return S.tr("ai.error.rateLimited")
-        case .networkError(let e): return e.localizedDescription
+        case .rateLimited, .dailyLimitReached: return S.tr("ai.error.rateLimited")
+        case .networkError: return S.tr("ai.error.network")
         case .httpError(let code): return S.tr("ai.error.serverError", "\(code)")
         case .decodingError, .emptyResponse: return S.tr("ai.insights.error.title")
         case .consentRequired: return S.tr("ai.insights.error.title")
         case .notAuthenticated: return S.tr("ai.insights.error.title")
         case .proxyNotConfigured: return S.tr("ai.insights.error.title")
         }
+    }
+}
+
+/// Per-day client-side rate limiter for AI insight calls. The Edge Function
+/// already enforces JWT, but throttling on the client prevents accidental loops
+/// (held buttons, retry storms) from racking up Anthropic costs.
+///
+/// **Defense-in-depth only.** A modified client can bypass this; the Edge
+/// Function should ALSO throttle keyed on `auth.uid()` (TODO server-side).
+enum AIInsightRateLimit {
+    static let dailyCap = 10
+    private static let countKey = "ai_insights_daily_count"
+    private static let dayKey = "ai_insights_daily_day"
+
+    /// Returns true if a new call is allowed; increments the counter as a side effect.
+    static func tryConsume() -> Bool {
+        let today = ISO8601DateFormatter.string(from: Date(), timeZone: .current,
+                                                formatOptions: [.withFullDate])
+        let lastDay = UserDefaults.standard.string(forKey: dayKey)
+        var count = UserDefaults.standard.integer(forKey: countKey)
+        if lastDay != today {
+            count = 0
+            UserDefaults.standard.set(today, forKey: dayKey)
+        }
+        guard count < dailyCap else { return false }
+        UserDefaults.standard.set(count + 1, forKey: countKey)
+        return true
     }
 }
 
@@ -114,8 +142,18 @@ final class AIInsightsService: AIInsightsServiceProtocol, Sendable {
     func fetchInsight(for snapshot: FinancialSnapshot) async throws -> String {
         // Opt-in gate: do not transmit any financial data to a third party
         // without explicit, granted consent.
+        // NOTE: This client-side flag is bypassable. TODO server-side: persist a
+        // consent record keyed on `auth.uid()` and have the Edge Function reject
+        // requests when no record exists. The `consent: true` body field below
+        // gives the proxy the input it needs to enforce that.
         guard AIConsent.isGranted else {
             throw AIInsightsError.consentRequired
+        }
+
+        // Defense-in-depth: throttle locally so a stuck UI loop or held button
+        // can't burn cost. The server should also throttle.
+        guard AIInsightRateLimit.tryConsume() else {
+            throw AIInsightsError.dailyLimitReached
         }
 
         guard let endpoint = proxyURL else {
@@ -142,9 +180,12 @@ final class AIInsightsService: AIInsightsServiceProtocol, Sendable {
         // ever decides to honor the header.
         request.setValue(anthropicVersion, forHTTPHeaderField: "anthropic-version")
 
+        // `consent: true` is sent so the Edge Function can enforce/log consent
+        // server-side. Without this signal the proxy currently relies on JWT alone.
         let body: [String: Any] = [
             "model": AIModelConfig.model,
             "max_tokens": maxTokens,
+            "consent": true,
             "messages": [
                 ["role": "user", "content": buildPrompt(snapshot)]
             ]

@@ -1,5 +1,8 @@
 import Foundation
 import SwiftData
+import os
+
+private let addDebtLog = Logger(subsystem: "kevingamez.debt-tracker", category: "addDebt")
 
 @Observable
 final class AddDebtViewModel {
@@ -19,8 +22,9 @@ final class AddDebtViewModel {
         !title.trimmingCharacters(in: .whitespaces).isEmpty && parsedAmount > 0
     }
 
+    /// Clamped to the safe `[0, InputBounds.maxAmount]` range.
     var parsedAmount: Decimal {
-        Decimal(string: amountString) ?? 0
+        InputBounds.clamp(amount: Decimal(string: amountString) ?? 0)
     }
 
     var personDisplayName: String {
@@ -37,28 +41,45 @@ final class AddDebtViewModel {
         let person: Person?
         if let existing = selectedPerson {
             person = existing
-        } else if !newPersonName.trimmingCharacters(in: .whitespaces).isEmpty {
-            let newPerson = Person(name: newPersonName.trimmingCharacters(in: .whitespaces))
-            context.insert(newPerson)
-            person = newPerson
         } else {
-            person = nil
+            let bounded = InputBounds.bounded(newPersonName, max: InputBounds.titleMaxLength)
+            if !bounded.isEmpty {
+                let newPerson = Person(name: bounded)
+                context.insert(newPerson)
+                person = newPerson
+            } else {
+                person = nil
+            }
         }
 
+        let boundedTitle = InputBounds.bounded(title, max: InputBounds.titleMaxLength)
+        let boundedNotes: String? = {
+            let trimmed = InputBounds.bounded(notes, max: InputBounds.notesMaxLength)
+            return trimmed.isEmpty ? nil : trimmed
+        }()
+
         let debt = Debt(
-            title: title.trimmingCharacters(in: .whitespaces),
+            title: boundedTitle,
             totalAmount: parsedAmount,
             direction: direction,
             person: person,
             category: selectedCategory,
             dueDate: hasDueDate ? dueDate : nil,
-            notes: notes.isEmpty ? nil : notes,
+            notes: boundedNotes,
             reminderEnabled: reminderEnabled,
             reminderDate: reminderEnabled ? reminderDate : nil
         )
 
         context.insert(debt)
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            // Roll back the orphaned insert and bail; surfacing through the log
+            // beats silently dropping the user's input.
+            addDebtLog.error("Failed to save debt: \(String(describing: error), privacy: .public)")
+            context.rollback()
+            return
+        }
 
         // Schedule notification if reminder enabled.
         // We hop onto the MainActor (Debt is @MainActor-isolated) and persist the
@@ -79,7 +100,11 @@ final class AddDebtViewModel {
                     existingIdentifier: nil
                 )
                 debt.notificationIdentifier = notifId
-                try? context.save()
+                do {
+                    try context.save()
+                } catch {
+                    addDebtLog.error("Failed to persist notification id: \(String(describing: error), privacy: .public)")
+                }
             }
         }
     }

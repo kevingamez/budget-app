@@ -1,5 +1,8 @@
 import Foundation
 import SwiftData
+import os
+
+private let debtDetailLog = Logger(subsystem: "kevingamez.debt-tracker", category: "debtDetail")
 
 @Observable
 final class DebtDetailViewModel {
@@ -13,7 +16,7 @@ final class DebtDetailViewModel {
     var paymentNotes: String = ""
 
     var parsedPaymentAmount: Decimal {
-        Decimal(string: paymentAmountString) ?? 0
+        InputBounds.clamp(amount: Decimal(string: paymentAmountString) ?? 0)
     }
 
     var isPaymentValid: Bool {
@@ -22,13 +25,19 @@ final class DebtDetailViewModel {
 
     // kept in sync with DebtsListViewModel.markAsPaid
     func recordPayment(for debt: Debt, context: ModelContext) {
-        let amount = parsedPaymentAmount
+        // Cap the payment at remainingAmount so the user can't accidentally
+        // (or maliciously) drive the balance negative — that would corrupt
+        // derivedStatus and break the dashboard totals.
+        let requested = parsedPaymentAmount
+        let amount = min(requested, debt.remainingAmount)
         guard amount > 0 else { return }
+
+        let boundedNotes = InputBounds.bounded(paymentNotes, max: InputBounds.notesMaxLength)
 
         let payment = Payment(
             amount: amount,
             date: paymentDate,
-            notes: paymentNotes.isEmpty ? nil : paymentNotes,
+            notes: boundedNotes.isEmpty ? nil : boundedNotes,
             debt: debt
         )
         context.insert(payment)
@@ -41,16 +50,27 @@ final class DebtDetailViewModel {
             debt.notificationIdentifier = nil
         }
 
-        try? context.save()
-        resetPaymentFields()
+        do {
+            try context.save()
+            resetPaymentFields()
+        } catch {
+            debtDetailLog.error("recordPayment save failed: \(String(describing: error), privacy: .public)")
+            context.rollback()
+        }
     }
 
-    func markAsForgiven(_ debt: Debt) {
+    func markAsForgiven(_ debt: Debt, context: ModelContext) {
         debt.status = .forgiven
         debt.updatedAt = Date()
         if let identifier = debt.notificationIdentifier {
             NotificationService.shared.cancelReminder(identifier: identifier)
             debt.notificationIdentifier = nil
+        }
+        do {
+            try context.save()
+        } catch {
+            debtDetailLog.error("markAsForgiven save failed: \(String(describing: error), privacy: .public)")
+            context.rollback()
         }
     }
 
@@ -59,7 +79,12 @@ final class DebtDetailViewModel {
             NotificationService.shared.cancelReminder(identifier: identifier)
         }
         context.delete(debt)
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            debtDetailLog.error("deleteDebt save failed: \(String(describing: error), privacy: .public)")
+            context.rollback()
+        }
     }
 
     func fillFullAmount(for debt: Debt) {

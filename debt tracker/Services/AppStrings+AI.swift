@@ -74,6 +74,14 @@ extension AppStrings {
             "ja": "\u{7121}\u{52B9}\u{306A}API\u{30AD}\u{30FC}\u{3067}\u{3059}\u{3002}\u{8A2D}\u{5B9A}\u{3092}\u{78BA}\u{8A8D}\u{3057}\u{3066}\u{304F}\u{3060}\u{3055}\u{3044}\u{3002}",
             "ko": "\u{C798}\u{BABB}\u{B41C} API \u{D0A4}\u{C785}\u{B2C8}\u{B2E4}. \u{C124}\u{C815}\u{C744} \u{D655}\u{C778}\u{D558}\u{C138}\u{C694}.",
         ],
+        "ai.error.network": [
+            "en": "Could not reach the server. Check your connection and try again.",
+            "es": "No se pudo conectar al servidor. Revisa tu conexi\u{00F3}n e int\u{00E9}ntalo de nuevo.",
+            "fr": "Impossible de joindre le serveur. V\u{00E9}rifiez votre connexion et r\u{00E9}essayez.",
+            "pt": "N\u{00E3}o foi poss\u{00ED}vel conectar ao servidor. Verifique sua conex\u{00E3}o e tente novamente.",
+            "ja": "\u{30B5}\u{30FC}\u{30D0}\u{30FC}\u{306B}\u{63A5}\u{7D9A}\u{3067}\u{304D}\u{307E}\u{305B}\u{3093}\u{3067}\u{3057}\u{305F}\u{3002}\u{63A5}\u{7D9A}\u{3092}\u{78BA}\u{8A8D}\u{3057}\u{3066}\u{518D}\u{8A66}\u{884C}\u{3057}\u{3066}\u{304F}\u{3060}\u{3055}\u{3044}\u{3002}",
+            "ko": "\u{C11C}\u{BC84}\u{C5D0} \u{C5F0}\u{ACB0}\u{D560} \u{C218} \u{C5C6}\u{C2B5}\u{B2C8}\u{B2E4}. \u{C5F0}\u{ACB0}\u{C744} \u{D655}\u{C778}\u{D558}\u{ACE0} \u{B2E4}\u{C2DC} \u{C2DC}\u{B3C4}\u{D558}\u{C138}\u{C694}.",
+        ],
         "ai.error.rateLimited": [
             "en": "Too many requests. Please wait a moment.",
             "es": "Demasiadas solicitudes. Espera un momento.",

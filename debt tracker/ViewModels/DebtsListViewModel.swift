@@ -1,7 +1,9 @@
 import Foundation
 import SwiftData
+import os
 
 private let S = AppStrings.shared
+private let debtsListLog = Logger(subsystem: "kevingamez.debt-tracker", category: "debtsList")
 
 enum DebtSortOption: String, CaseIterable, Identifiable {
     case dateCreated
@@ -66,7 +68,12 @@ final class DebtsListViewModel {
             NotificationService.shared.cancelReminder(identifier: identifier)
         }
         context.delete(debt)
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            debtsListLog.error("deleteDebt save failed: \(String(describing: error), privacy: .public)")
+            context.rollback()
+        }
     }
 
     // kept in sync with DebtDetailViewModel.recordPayment
@@ -84,6 +91,11 @@ final class DebtsListViewModel {
             debt.notificationIdentifier = nil
         }
 
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            debtsListLog.error("markAsPaid save failed: \(String(describing: error), privacy: .public)")
+            context.rollback()
+        }
     }
 }

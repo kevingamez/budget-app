@@ -122,7 +122,9 @@ private struct SettingsAlerts: ViewModifier {
             .alert(S.tr("auth.signOutConfirm"), isPresented: $showSignOutConfirmation) {
                 Button(S.tr("common.cancel"), role: .cancel) {}
                 Button(S.tr("auth.signOut"), role: .destructive) {
-                    Task { await authService.signOut() }
+                    // Hand the context to signOut so the previous user's debts/
+                    // payments/people are wiped from the local SwiftData store.
+                    Task { await authService.signOut(modelContext: modelContext) }
                 }
             } message: {
                 Text(S.tr("auth.signOutMessage"))

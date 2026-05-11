@@ -73,6 +73,17 @@ final class SettingsViewModel {
 
     func clearAllData(context: ModelContext) {
         SampleDataService.clearAll(context: context)
+        // "Clear All Data" should mean *all* local data, not just SwiftData
+        // rows. Profile photo, pending notifications, and any cached AI
+        // insights all live outside the store and were otherwise left behind.
+        NotificationService.shared.cancelAllReminders()
+        ProfilePhotoStorage.delete()
+        let defaults = UserDefaults.standard
+        for key in defaults.dictionaryRepresentation().keys where key.hasPrefix("ai_insights_cache") {
+            defaults.removeObject(forKey: key)
+        }
+        defaults.removeObject(forKey: "ai_insights_daily_count")
+        defaults.removeObject(forKey: "ai_insights_daily_day")
     }
 
     func exportSummary(debts: [Debt], payments: [Payment]) -> String {

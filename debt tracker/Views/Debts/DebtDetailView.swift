@@ -32,7 +32,7 @@ struct DebtDetailView: View {
 
                     DebtActionsSection(
                         canForgive: canRecordPayment,
-                        onForgive: { viewModel.markAsForgiven(debt) },
+                        onForgive: { viewModel.markAsForgiven(debt, context: modelContext) },
                         onDelete: { viewModel.showDeleteConfirmation = true }
                     )
                 }

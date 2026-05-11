@@ -1,5 +1,8 @@
 import Foundation
 import SwiftData
+import os
+
+private let editDebtLog = Logger(subsystem: "kevingamez.debt-tracker", category: "editDebt")
 
 @Observable
 final class EditDebtViewModel {
@@ -27,18 +30,24 @@ final class EditDebtViewModel {
     }
 
     var isValid: Bool {
-        !title.trimmingCharacters(in: .whitespaces).isEmpty && totalAmount > 0
+        !title.trimmingCharacters(in: .whitespaces).isEmpty && InputBounds.clamp(amount: totalAmount) > 0
     }
 
     func save(context: ModelContext) {
         guard let debt = context.model(for: debtID) as? Debt else { return }
-        debt.title = title.trimmingCharacters(in: .whitespaces)
-        debt.totalAmount = totalAmount
+        debt.title = InputBounds.bounded(title, max: InputBounds.titleMaxLength)
+        debt.totalAmount = InputBounds.clamp(amount: totalAmount)
         debt.direction = direction
         debt.dueDate = hasDueDate ? dueDate : nil
-        debt.notes = notes.isEmpty ? nil : notes
+        let trimmedNotes = InputBounds.bounded(notes, max: InputBounds.notesMaxLength)
+        debt.notes = trimmedNotes.isEmpty ? nil : trimmedNotes
         debt.category = category
         debt.updatedAt = Date()
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            editDebtLog.error("Failed to save edit: \(String(describing: error), privacy: .public)")
+            context.rollback()
+        }
     }
 }

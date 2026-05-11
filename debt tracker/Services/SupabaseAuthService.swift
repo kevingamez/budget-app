@@ -1,5 +1,6 @@
 import Foundation
 import Supabase
+import SwiftData
 import os
 
 // MARK: - Auth User
@@ -127,11 +128,17 @@ final class SupabaseAuthService {
 
     // MARK: - Sign Out
 
-    func signOut() async {
+    /// Sign out and wipe every piece of user-scoped local state.
+    ///
+    /// Pass the active `ModelContext` so SwiftData entities (debts, payments,
+    /// people, categories) are deleted along with auth state. Without it the
+    /// next account that signs in on this device would see the previous user's
+    /// debts — a cross-account leak.
+    func signOut(modelContext: ModelContext? = nil) async {
         do {
             try await client.auth.signOut()
         } catch {
-            // Sign out locally even if server call fails
+            // Sign out locally even if server call fails.
             Self.log.error("Server sign-out failed: \(String(describing: error), privacy: .public)")
         }
         currentUser = nil
@@ -139,8 +146,36 @@ final class SupabaseAuthService {
         // Best-effort local cleanup of user-scoped state.
         NotificationService.shared.cancelAllReminders()
         ProfilePhotoStorage.delete()
-        // Clear any AI-insights cache keys that may exist locally.
+        BiometricAuthService.shared.lock()
+
+        if let modelContext {
+            do {
+                // Order matters for cascade rules: delete dependents first.
+                try modelContext.delete(model: Payment.self)
+                try modelContext.delete(model: Debt.self)
+                try modelContext.delete(model: Person.self)
+                try modelContext.delete(model: DebtCategory.self)
+                try modelContext.save()
+            } catch {
+                Self.log.error("SwiftData wipe on signOut failed: \(String(describing: error), privacy: .public)")
+            }
+        }
+
+        // Clear user-scoped UserDefaults: profile-tied keys, security pref, AI
+        // consent, AI rate-limit counters, and any cached AI insights. App-wide
+        // appearance prefs (language, currency, theme, direction) stay so the
+        // next sign-in lands on the same look-and-feel.
         let defaults = UserDefaults.standard
+        let userScopedKeys = [
+            "userName",
+            "requireBiometrics",
+            AIConsent.key,
+            "ai_insights_daily_count",
+            "ai_insights_daily_day",
+        ]
+        for key in userScopedKeys {
+            defaults.removeObject(forKey: key)
+        }
         for key in defaults.dictionaryRepresentation().keys where key.hasPrefix("ai_insights_cache") {
             defaults.removeObject(forKey: key)
         }
