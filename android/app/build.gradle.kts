@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -29,10 +31,17 @@ android {
 
         // Supabase URL + anon key are baked at build time from local.properties
         // so they don't ship to git. Mirrors how iOS reads Secrets.plist.
-        val supabaseUrl = providers.gradleProperty("SUPABASE_URL").orNull
+        // Order of precedence: local.properties → gradle property → env var.
+        val localProps = Properties().apply {
+            val f = rootProject.file("local.properties")
+            if (f.exists()) f.inputStream().use { load(it) }
+        }
+        val supabaseUrl = localProps.getProperty("SUPABASE_URL")
+            ?: providers.gradleProperty("SUPABASE_URL").orNull
             ?: System.getenv("SUPABASE_URL")
             ?: ""
-        val supabaseAnonKey = providers.gradleProperty("SUPABASE_ANON_KEY").orNull
+        val supabaseAnonKey = localProps.getProperty("SUPABASE_ANON_KEY")
+            ?: providers.gradleProperty("SUPABASE_ANON_KEY").orNull
             ?: System.getenv("SUPABASE_ANON_KEY")
             ?: ""
         buildConfigField("String", "SUPABASE_URL", "\"$supabaseUrl\"")

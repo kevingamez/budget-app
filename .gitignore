@@ -57,3 +57,11 @@ android/*.iml
 android/app/*.iml
 android/gradle-app.setting
 android/.cxx/
+supabase/functions/.env
+
+# Supabase local CLI state
+supabase/.branches/
+supabase/.temp/
+
+# Xcode user state
+debt tracker.xcodeproj/xcuserdata/

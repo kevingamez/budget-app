@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Debug-only: permit cleartext HTTP so the emulator can reach the
+         local Supabase stack at 10.0.2.2:54321 without TLS. Release builds
+         inherit the main manifest, which keeps cleartext disabled. -->
+    <application
+        android:usesCleartextTraffic="true"
+        tools:targetApi="m"
+        tools:replace="android:usesCleartextTraffic" />
+</manifest>
