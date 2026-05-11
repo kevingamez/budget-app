@@ -8,7 +8,6 @@ struct DashboardView: View {
     @Query(sort: \Payment.date, order: .reverse) private var payments: [Payment]
     @Query private var persons: [Person]
     @State private var viewModel = DashboardViewModel()
-    @State private var appeared = false
     @State private var selectedInsight: InsightRequest?
 
     var body: some View {
@@ -17,28 +16,62 @@ struct DashboardView: View {
                 ColorTokens.background.ignoresSafeArea()
 
                 ScrollView {
-                    VStack(spacing: 16) {
-                        greetingSection
-                        balanceCard
-                        summaryRow
-                        progressSection
-                        recentActivitySection
+                    VStack(spacing: 24) {
+                        topBar
+                            .staggeredAppear(index: 0)
+
+                        RevolutHeroBalance(
+                            netBalance: viewModel.netBalance,
+                            owedToMe: viewModel.totalOwedToMe,
+                            iOwe: viewModel.totalIOwe
+                        )
+                        .staggeredAppear(index: 1)
+
+                        QuickActionsRow(actions: quickActions)
+                            .staggeredAppear(index: 2)
+
+                        AccountCardsRow(
+                            owedToMe: viewModel.totalOwedToMe,
+                            iOwe: viewModel.totalIOwe,
+                            activeCount: viewModel.activeDebtCount,
+                            overdueCount: viewModel.overdueCount
+                        )
+                        .staggeredAppear(index: 3)
+
+                        InsightTilesRow(
+                            activeCount: viewModel.activeDebtCount,
+                            overdueCount: viewModel.overdueCount,
+                            almostPaidCount: viewModel.topDebts.count
+                        )
+                        .staggeredAppear(index: 4)
+
+                        TransactionsListSection(
+                            payments: viewModel.recentPayments,
+                            onSeeAll: {
+                                NotificationCenter.default.post(
+                                    name: .requestTabSwitch,
+                                    object: AppTab.activity
+                                )
+                            }
+                        )
+                        .staggeredAppear(index: 5)
+
                         lifetimeStatsSection
+                            .staggeredAppear(index: 6)
                     }
                     .padding(.horizontal, AppTheme.screenPadding)
-                    .padding(.bottom, 20)
+                    .padding(.top, 8)
+                    .padding(.bottom, 32)
                 }
                 .scrollIndicators(.hidden)
             }
             .navigationTitle("")
+            #if os(iOS)
+            .toolbar(.hidden, for: .navigationBar)
+            #endif
             .onAppear {
                 viewModel.refresh(debts: debts, payments: payments)
-                withAnimation {
-                    appeared = true
-                }
             }
-            // React to content changes (additions, edits, deletions) using a content signature.
-            // Avoids staleness when a debt/payment is edited without count changes.
             .task(id: contentSignature) {
                 viewModel.refresh(debts: debts, payments: payments)
             }
@@ -48,84 +81,44 @@ struct DashboardView: View {
         }
     }
 
-    // MARK: - Content Signature
-
-    /// Cheap snapshot of content that triggers VM refresh when it changes.
-    /// XORs persistent IDs and monetary amounts to catch additions, deletions, and edits.
-    private var contentSignature: Int {
-        var hash = 0
-        hash ^= debts.count
-        hash ^= payments.count &<< 1
-        for debt in debts {
-            hash ^= debt.persistentModelID.hashValue
-            hash ^= debt.totalAmount.hashValue
-        }
-        for payment in payments {
-            hash ^= payment.persistentModelID.hashValue
-            hash ^= payment.amount.hashValue
-        }
-        return hash
-    }
-
     // MARK: - Sections
 
     @ViewBuilder
-    private var greetingSection: some View {
-        HStack {
-            VStack(alignment: .leading, spacing: 4) {
+    private var topBar: some View {
+        HStack(alignment: .center, spacing: 12) {
+            Circle()
+                .fill(ColorTokens.primaryGradient)
+                .frame(width: 36, height: 36)
+                .overlay(
+                    Text(initialsForGreeting)
+                        .font(.system(.subheadline, design: .rounded).weight(.bold))
+                        .foregroundStyle(.white)
+                )
+
+            VStack(alignment: .leading, spacing: 0) {
                 Text(greetingText)
-                    .font(AppTypography.title)
-                    .foregroundStyle(ColorTokens.textPrimary)
-
+                    .font(.system(.caption, design: .rounded).weight(.medium))
+                    .foregroundStyle(ColorTokens.textTertiary)
                 Text(S.tr("greeting.subtitle"))
-                    .font(AppTypography.subheadline)
-                    .foregroundStyle(ColorTokens.textSecondary)
+                    .font(.system(.subheadline, design: .rounded).weight(.semibold))
+                    .foregroundStyle(ColorTokens.textPrimary)
+                    .lineLimit(1)
             }
+
             Spacer()
+
+            Button {
+                NotificationCenter.default.post(name: .requestTabSwitch, object: AppTab.settings)
+            } label: {
+                Image(systemName: "gearshape")
+                    .font(.system(size: 16, weight: .semibold))
+                    .foregroundStyle(ColorTokens.textSecondary)
+                    .frame(width: 36, height: 36)
+                    .background(ColorTokens.surface, in: Circle())
+                    .overlay(Circle().stroke(ColorTokens.surfaceBorder, lineWidth: 0.5))
+            }
+            .buttonStyle(.plain)
         }
-        .staggeredAppear(index: 0, appeared: appeared)
-    }
-
-    @ViewBuilder
-    private var balanceCard: some View {
-        BalanceOverviewCard(
-            totalOwedToMe: viewModel.totalOwedToMe,
-            totalIOwe: viewModel.totalIOwe,
-            netBalance: viewModel.netBalance
-        )
-        .staggeredAppear(index: 1, appeared: appeared)
-    }
-
-    @ViewBuilder
-    private var summaryRow: some View {
-        HStack(spacing: 12) {
-            SummaryCardView(
-                title: S.tr("dashboard.activeDebts"),
-                value: "\(viewModel.activeDebtCount)",
-                icon: "doc.text.fill",
-                gradient: ColorTokens.primaryGradient
-            )
-
-            SummaryCardView(
-                title: S.tr("dashboard.overdue"),
-                value: "\(viewModel.overdueCount)",
-                icon: "exclamationmark.triangle.fill",
-                gradient: viewModel.overdueCount > 0 ? ColorTokens.redGradient : ColorTokens.greenGradient
-            )
-        }
-        .staggeredAppear(index: 2, appeared: appeared)
-    }
-
-    @ViewBuilder
-    private var progressSection: some View {
-        DebtProgressCard(debts: viewModel.topDebts)
-            .staggeredAppear(index: 3, appeared: appeared)
-    }
-
-    @ViewBuilder
-    private var recentActivitySection: some View {
-        RecentActivityCard(payments: viewModel.recentPayments)
-            .staggeredAppear(index: 4, appeared: appeared)
     }
 
     @ViewBuilder
@@ -136,7 +129,8 @@ struct DashboardView: View {
                     .font(.system(size: 13, weight: .semibold))
                     .foregroundStyle(ColorTokens.textTertiary)
                 Text(S.tr("dashboard.lifetimeStats"))
-                    .font(AppTypography.footnote)
+                    .font(.system(.caption2, design: .rounded).weight(.semibold))
+                    .tracking(1.0)
                     .foregroundStyle(ColorTokens.textTertiary)
             }
 
@@ -155,7 +149,25 @@ struct DashboardView: View {
                 }
             )
         }
-        .staggeredAppear(index: 5, appeared: appeared)
+    }
+
+    // MARK: - Helpers
+
+    private var quickActions: [QuickAction] {
+        [
+            QuickAction(label: S.tr("dashboard.actionNew"), icon: "plus") {
+                NotificationCenter.default.post(name: .newDebtRequested, object: nil)
+            },
+            QuickAction(label: S.tr("dashboard.actionPay"), icon: "checkmark") {
+                NotificationCenter.default.post(name: .requestTabSwitch, object: AppTab.debts)
+            },
+            QuickAction(label: S.tr("dashboard.actionPeople"), icon: "person.2.fill") {
+                NotificationCenter.default.post(name: .requestTabSwitch, object: AppTab.debts)
+            },
+            QuickAction(label: S.tr("dashboard.actionMore"), icon: "ellipsis") {
+                NotificationCenter.default.post(name: .requestTabSwitch, object: AppTab.settings)
+            },
+        ]
     }
 
     private var greetingText: String {
@@ -163,5 +175,26 @@ struct DashboardView: View {
         if hour < 12 { return S.tr("greeting.morning") }
         if hour < 17 { return S.tr("greeting.afternoon") }
         return S.tr("greeting.evening")
+    }
+
+    private var initialsForGreeting: String {
+        let trimmed = greetingText.trimmingCharacters(in: .whitespaces)
+        return String(trimmed.prefix(1)).uppercased()
+    }
+
+    /// Cheap snapshot of content that triggers VM refresh when it changes.
+    private var contentSignature: Int {
+        var hash = 0
+        hash ^= debts.count
+        hash ^= payments.count &<< 1
+        for debt in debts {
+            hash ^= debt.persistentModelID.hashValue
+            hash ^= debt.totalAmount.hashValue
+        }
+        for payment in payments {
+            hash ^= payment.persistentModelID.hashValue
+            hash ^= payment.amount.hashValue
+        }
+        return hash
     }
 }

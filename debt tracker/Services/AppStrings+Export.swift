@@ -1,0 +1,86 @@
+import Foundation
+
+extension AppStrings {
+    static let translationsExport: [String: [String: String]] = [
+        "export.title": [
+            "en": "DEBT TRACKER \u{2014} Summary Export",
+            "es": "DEBT TRACKER \u{2014} Resumen Exportado",
+            "fr": "DEBT TRACKER \u{2014} R\u{00E9}sum\u{00E9} Export\u{00E9}",
+            "pt": "DEBT TRACKER \u{2014} Resumo Exportado",
+            "ja": "DEBT TRACKER \u{2014} \u{6982}\u{8981}\u{30A8}\u{30AF}\u{30B9}\u{30DD}\u{30FC}\u{30C8}",
+            "ko": "DEBT TRACKER \u{2014} \u{C694}\u{C57D} \u{B0B4}\u{BCF4}\u{B0B4}\u{AE30}",
+        ],
+        "export.generated": [
+            "en": "Generated: %@",
+            "es": "Generado: %@",
+            "fr": "G\u{00E9}n\u{00E9}r\u{00E9}: %@",
+            "pt": "Gerado: %@",
+            "ja": "\u{751F}\u{6210}\u{65E5}: %@",
+            "ko": "\u{C0DD}\u{C131}\u{C77C}: %@",
+        ],
+        "export.overview": [
+            "en": "OVERVIEW",
+            "es": "RESUMEN",
+            "fr": "APERCU",
+            "pt": "RESUMO",
+            "ja": "\u{6982}\u{8981}",
+            "ko": "\u{C694}\u{C57D}",
+        ],
+        "export.totalActive": [
+            "en": "Total active debts: %@",
+            "es": "Total deudas activas: %@",
+            "fr": "Total dettes actives: %@",
+            "pt": "Total d\u{00ED}vidas ativas: %@",
+            "ja": "\u{30A2}\u{30AF}\u{30C6}\u{30A3}\u{30D6}\u{306A}\u{50B5}\u{52D9}: %@",
+            "ko": "\u{D65C}\u{C131} \u{BE5A} \u{D569}\u{ACC4}: %@",
+        ],
+        "export.owedToMe": [
+            "en": "Owed to me: %@",
+            "es": "Me deben: %@",
+            "fr": "On me doit: %@",
+            "pt": "Me devem: %@",
+            "ja": "\u{8CB8}\u{3057}\u{305F}\u{304A}\u{91D1}: %@",
+            "ko": "\u{BC1B}\u{C744} \u{B3C8}: %@",
+        ],
+        "export.iOwe": [
+            "en": "I owe: %@",
+            "es": "Yo debo: %@",
+            "fr": "Je dois: %@",
+            "pt": "Eu devo: %@",
+            "ja": "\u{501F}\u{308A}\u{305F}\u{304A}\u{91D1}: %@",
+            "ko": "\u{AC1A}\u{C740} \u{B3C8}: %@",
+        ],
+        "export.netBalance": [
+            "en": "Net balance: %@",
+            "es": "Balance neto: %@",
+            "fr": "Solde net: %@",
+            "pt": "Saldo l\u{00ED}quido: %@",
+            "ja": "\u{7D14}\u{6B8B}\u{9AD8}: %@",
+            "ko": "\u{C21C} \u{C794}\u{C561}: %@",
+        ],
+        "export.owedToMeSection": [
+            "en": "OWED TO ME",
+            "es": "ME DEBEN",
+            "fr": "ON ME DOIT",
+            "pt": "ME DEVEM",
+            "ja": "\u{8CB8}\u{3057}\u{305F}\u{304A}\u{91D1}",
+            "ko": "\u{BC1B}\u{C744} \u{B3C8}",
+        ],
+        "export.iOweSection": [
+            "en": "I OWE",
+            "es": "YO DEBO",
+            "fr": "JE DOIS",
+            "pt": "EU DEVO",
+            "ja": "\u{501F}\u{308A}\u{305F}\u{304A}\u{91D1}",
+            "ko": "\u{AC1A}\u{C740} \u{B3C8}",
+        ],
+        "export.completed": [
+            "en": "COMPLETED (%@)",
+            "es": "COMPLETADAS (%@)",
+            "fr": "TERMIN\u{00C9}ES (%@)",
+            "pt": "CONCLU\u{00CD}DAS (%@)",
+            "ja": "\u{5B8C}\u{4E86} (%@)",
+            "ko": "\u{C644}\u{B8CC} (%@)",
+        ],
+    ]
+}

@@ -23,6 +23,7 @@ struct AppearanceSettingsView: View {
     @AppStorage("currencyCode") private var currencyCode = "USD"
     @AppStorage("defaultDirection") private var defaultDirection = "owedToMe"
     @State private var currencyService = CurrencyService.shared
+    @State private var themeManager = ThemeManager.shared
     @State private var convertAmount: String = "100"
     @State private var convertTo: String = "COP"
 
@@ -31,6 +32,30 @@ struct AppearanceSettingsView: View {
             ColorTokens.background.ignoresSafeArea()
 
             List {
+                // Theme Picker
+                Section {
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 12) {
+                            ForEach(AppThemePalette.allPresets) { palette in
+                                ThemeCard(
+                                    palette: palette,
+                                    isSelected: themeManager.currentId == palette.id
+                                ) {
+                                    withAnimation(AppAnimations.cardSpring) {
+                                        themeManager.select(palette)
+                                    }
+                                }
+                            }
+                        }
+                        .padding(.vertical, 4)
+                    }
+                    .listRowInsets(EdgeInsets(top: 8, leading: 12, bottom: 8, trailing: 12))
+                } header: {
+                    Text(S.tr("appearance.theme"))
+                        .foregroundStyle(ColorTokens.textTertiary)
+                }
+                .listRowBackground(ColorTokens.surface)
+
                 // Currency Picker
                 Section {
                     ForEach(Self.allCurrencies) { currency in
@@ -41,7 +66,7 @@ struct AppearanceSettingsView: View {
                         } label: {
                             HStack(spacing: 12) {
                                 Text(currency.symbol)
-                                    .font(.system(size: 20, weight: .bold, design: .rounded))
+                                    .font(.system(.headline, design: .rounded).weight(.bold))
                                     .foregroundStyle(ColorTokens.primaryAccent)
                                     .frame(width: 32)
 
@@ -219,5 +244,78 @@ struct AppearanceSettingsView: View {
     private func formatConverted(_ value: Decimal, code: String) -> String {
         let formatter = CurrencyFormatting.decimalFormatter(minFraction: 2, maxFraction: 2)
         return formatter.string(from: NSDecimalNumber(decimal: value)) ?? "0.00"
+    }
+}
+
+// MARK: - Theme Card
+
+private struct ThemeCard: View {
+    let palette: AppThemePalette
+    let isSelected: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            VStack(alignment: .leading, spacing: 10) {
+                // Mini-preview canvas using the palette's own colors.
+                ZStack(alignment: .topLeading) {
+                    RoundedRectangle(cornerRadius: 14)
+                        .fill(palette.background)
+
+                    VStack(alignment: .leading, spacing: 6) {
+                        RoundedRectangle(cornerRadius: 6)
+                            .fill(palette.surface)
+                            .frame(height: 18)
+                            .overlay(alignment: .leading) {
+                                HStack(spacing: 4) {
+                                    Circle().fill(palette.primaryGradient).frame(width: 8, height: 8)
+                                    RoundedRectangle(cornerRadius: 2)
+                                        .fill(palette.textSecondary)
+                                        .frame(width: 36, height: 4)
+                                }
+                                .padding(.leading, 6)
+                            }
+
+                        HStack(spacing: 6) {
+                            RoundedRectangle(cornerRadius: 6)
+                                .fill(palette.greenGradient)
+                                .frame(height: 22)
+                            RoundedRectangle(cornerRadius: 6)
+                                .fill(palette.redGradient)
+                                .frame(height: 22)
+                        }
+
+                        RoundedRectangle(cornerRadius: 6)
+                            .fill(palette.surfaceElevated)
+                            .frame(height: 14)
+                    }
+                    .padding(8)
+                }
+                .frame(width: 132, height: 84)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 14)
+                        .stroke(isSelected ? palette.primaryAccent : Color.clear, lineWidth: 2)
+                )
+
+                HStack(spacing: 6) {
+                    Text(AppStrings.shared.tr(palette.nameKey))
+                        .font(AppTypography.caption)
+                        .fontWeight(isSelected ? .semibold : .regular)
+                        .foregroundStyle(ColorTokens.textPrimary)
+                        .lineLimit(1)
+
+                    if isSelected {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 12))
+                            .foregroundStyle(ColorTokens.primaryAccent)
+                            .transition(.scale.combined(with: .opacity))
+                    }
+                }
+                .frame(width: 132, alignment: .leading)
+            }
+        }
+        .buttonStyle(.plain)
+        .accessibilityLabel(AppStrings.shared.tr(palette.nameKey))
+        .accessibilityAddTraits(isSelected ? [.isSelected, .isButton] : .isButton)
     }
 }

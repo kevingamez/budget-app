@@ -10,6 +10,7 @@ import SwiftData
 
 extension Notification.Name {
     static let newDebtRequested = Notification.Name("newDebtRequested")
+    static let requestTabSwitch = Notification.Name("requestTabSwitch")
 }
 
 @main
@@ -25,7 +26,6 @@ struct debt_trackerApp: App {
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .preferredColorScheme(.dark)
                 .task {
                     #if DEBUG
                     seedSampleDataIfNeeded()
@@ -49,7 +49,7 @@ struct debt_trackerApp: App {
         Settings {
             SettingsView()
                 .modelContainer(container)
-                .preferredColorScheme(.dark)
+                .preferredColorScheme(ThemeManager.shared.current.preferredScheme)
         }
         #endif
     }

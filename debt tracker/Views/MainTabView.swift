@@ -57,5 +57,10 @@ struct MainTabView: View {
             // debts tab; the list view re-emits this notification to open the sheet.
             selectedTab = .debts
         }
+        .onReceive(NotificationCenter.default.publisher(for: .requestTabSwitch)) { note in
+            if let tab = note.object as? AppTab {
+                selectedTab = tab
+            }
+        }
     }
 }

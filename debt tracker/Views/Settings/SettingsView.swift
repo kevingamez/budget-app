@@ -116,7 +116,7 @@ struct SettingsView: View {
                             .frame(width: 70, height: 70)
 
                         Text(profileInitials)
-                            .font(.system(size: 28, weight: .bold, design: .rounded))
+                            .font(.system(.title, design: .rounded).weight(.bold))
                             .foregroundStyle(.white)
                     }
                 }

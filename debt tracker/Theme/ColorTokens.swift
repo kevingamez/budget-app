@@ -1,46 +1,38 @@
 import SwiftUI
 
+/// Public color API used throughout the app.
+/// Values are derived from the active `AppThemePalette` so that
+/// switching the theme via `ThemeManager` updates every call site.
 enum ColorTokens {
+    private static var theme: AppThemePalette { ThemeManager.shared.current }
+
     // MARK: - Backgrounds
-    static let background = Color(hex: "#0A0A0F")
-    static let surface = Color(hex: "#1A1A2E")
-    static let surfaceElevated = Color(hex: "#222240")
-    static let surfaceBorder = Color(hex: "#2A2A4A")
+    static var background: Color { theme.background }
+    static var surface: Color { theme.surface }
+    static var surfaceElevated: Color { theme.surfaceElevated }
+    static var surfaceBorder: Color { theme.surfaceBorder }
 
     // MARK: - Accent Gradients
-    static let primaryGradient = LinearGradient(
-        colors: [Color(hex: "#7C5CFC"), Color(hex: "#A78BFA")],
-        startPoint: .topLeading, endPoint: .bottomTrailing
-    )
-    static let greenGradient = LinearGradient(
-        colors: [Color(hex: "#10B981"), Color(hex: "#34D399")],
-        startPoint: .topLeading, endPoint: .bottomTrailing
-    )
-    static let redGradient = LinearGradient(
-        colors: [Color(hex: "#EF4444"), Color(hex: "#F87171")],
-        startPoint: .topLeading, endPoint: .bottomTrailing
-    )
-    static let goldGradient = LinearGradient(
-        colors: [Color(hex: "#F59E0B"), Color(hex: "#FBBF24")],
-        startPoint: .topLeading, endPoint: .bottomTrailing
-    )
+    static var primaryGradient: LinearGradient { theme.primaryGradient }
+    static var greenGradient: LinearGradient { theme.greenGradient }
+    static var redGradient: LinearGradient { theme.redGradient }
+    static var goldGradient: LinearGradient { theme.goldGradient }
 
     // MARK: - Flat Accents
-    static let primaryAccent = Color(hex: "#7C5CFC")
-    static let green = Color(hex: "#10B981")
-    static let red = Color(hex: "#EF4444")
-    static let gold = Color(hex: "#F59E0B")
+    static var primaryAccent: Color { theme.primaryAccent }
+    static var green: Color { theme.green }
+    static var red: Color { theme.red }
+    static var gold: Color { theme.gold }
 
     // MARK: - Text
-    static let textPrimary = Color.white
-    static let textSecondary = Color.white.opacity(0.6)
-    // raised from 0.35 to meet WCAG AA contrast on near-black background
-    static let textTertiary = Color.white.opacity(0.55)
+    static var textPrimary: Color { theme.textPrimary }
+    static var textSecondary: Color { theme.textSecondary }
+    static var textTertiary: Color { theme.textTertiary }
 
     // MARK: - Semantic
-    static let owedToMeColor = green
-    static let iOweColor = red
-    static let overdueColor = Color(hex: "#FF6B6B")
+    static var owedToMeColor: Color { theme.green }
+    static var iOweColor: Color { theme.red }
+    static var overdueColor: Color { theme.overdue }
 
     // MARK: - Helpers
     static func gradientForDirection(_ direction: DebtDirection) -> LinearGradient {

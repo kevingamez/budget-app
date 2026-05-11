@@ -1,0 +1,86 @@
+import Foundation
+
+extension AppStrings {
+    static let translationsAlerts: [String: [String: String]] = [
+        "alert.loadSample.title": [
+            "en": "Load Sample Data",
+            "es": "Cargar Datos de Ejemplo",
+            "fr": "Charger des Donn\u{00E9}es d'Exemple",
+            "pt": "Carregar Dados de Exemplo",
+            "ja": "\u{30B5}\u{30F3}\u{30D7}\u{30EB}\u{30C7}\u{30FC}\u{30BF}\u{3092}\u{8AAD}\u{307F}\u{8FBC}\u{3080}",
+            "ko": "\u{C0D8}\u{D50C} \u{B370}\u{C774}\u{D130} \u{B85C}\u{B4DC}",
+        ],
+        "alert.loadSample.message": [
+            "en": "This will add sample debts, payments, and contacts for testing.",
+            "es": "Esto agregar\u{00E1} deudas, pagos y contactos de ejemplo para pruebas.",
+            "fr": "Cela ajoutera des dettes, paiements et contacts d'exemple pour tester.",
+            "pt": "Isso adicionar\u{00E1} d\u{00ED}vidas, pagamentos e contatos de exemplo para testes.",
+            "ja": "\u{30C6}\u{30B9}\u{30C8}\u{7528}\u{306E}\u{30B5}\u{30F3}\u{30D7}\u{30EB}\u{50B5}\u{52D9}\u{3001}\u{652F}\u{6255}\u{3044}\u{3001}\u{9023}\u{7D61}\u{5148}\u{3092}\u{8FFD}\u{52A0}\u{3057}\u{307E}\u{3059}\u{3002}",
+            "ko": "\u{D14C}\u{C2A4}\u{D2B8}\u{C6A9} \u{C0D8}\u{D50C} \u{BE5A}, \u{ACB0}\u{C81C}, \u{C5F0}\u{B77D}\u{CC98}\u{B97C} \u{CD94}\u{AC00}\u{D569}\u{B2C8}\u{B2E4}.",
+        ],
+        "alert.loadSample.action": [
+            "en": "Load",
+            "es": "Cargar",
+            "fr": "Charger",
+            "pt": "Carregar",
+            "ja": "\u{8AAD}\u{307F}\u{8FBC}\u{3080}",
+            "ko": "\u{B85C}\u{B4DC}",
+        ],
+        "alert.clearAll.title": [
+            "en": "Clear All Data",
+            "es": "Borrar Todos los Datos",
+            "fr": "Effacer Toutes les Donn\u{00E9}es",
+            "pt": "Limpar Todos os Dados",
+            "ja": "\u{3059}\u{3079}\u{3066}\u{306E}\u{30C7}\u{30FC}\u{30BF}\u{3092}\u{6D88}\u{53BB}",
+            "ko": "\u{BAA8}\u{B4E0} \u{B370}\u{C774}\u{D130} \u{C0AD}\u{C81C}",
+        ],
+        "alert.clearAll.message": [
+            "en": "This will permanently delete everything. This cannot be undone.",
+            "es": "Esto eliminar\u{00E1} todo permanentemente. No se puede deshacer.",
+            "fr": "Cela supprimera tout d\u{00E9}finitivement. Cette action est irr\u{00E9}versible.",
+            "pt": "Isso excluir\u{00E1} tudo permanentemente. N\u{00E3}o pode ser desfeito.",
+            "ja": "\u{3059}\u{3079}\u{3066}\u{304C}\u{5B8C}\u{5168}\u{306B}\u{524A}\u{9664}\u{3055}\u{308C}\u{307E}\u{3059}\u{3002}\u{5143}\u{306B}\u{623B}\u{305B}\u{307E}\u{305B}\u{3093}\u{3002}",
+            "ko": "\u{BAA8}\u{B4E0} \u{B370}\u{C774}\u{D130}\u{AC00} \u{C601}\u{AD6C}\u{C801}\u{C73C}\u{B85C} \u{C0AD}\u{C81C}\u{B429}\u{B2C8}\u{B2E4}. \u{B418}\u{B3CC}\u{B9B4} \u{C218} \u{C5C6}\u{C2B5}\u{B2C8}\u{B2E4}.",
+        ],
+        "alert.clearAll.action": [
+            "en": "Clear",
+            "es": "Borrar",
+            "fr": "Effacer",
+            "pt": "Limpar",
+            "ja": "\u{6D88}\u{53BB}",
+            "ko": "\u{C0AD}\u{C81C}",
+        ],
+        "alert.deleteDebt.title": [
+            "en": "Delete Debt",
+            "es": "Eliminar Deuda",
+            "fr": "Supprimer la Dette",
+            "pt": "Excluir D\u{00ED}vida",
+            "ja": "\u{50B5}\u{52D9}\u{3092}\u{524A}\u{9664}",
+            "ko": "\u{BE5A} \u{C0AD}\u{C81C}",
+        ],
+        "alert.deleteDebt.message": [
+            "en": "This will permanently delete this debt and all its payments.",
+            "es": "Esto eliminar\u{00E1} permanentemente esta deuda y todos sus pagos.",
+            "fr": "Cela supprimera d\u{00E9}finitivement cette dette et tous ses paiements.",
+            "pt": "Isso excluir\u{00E1} permanentemente esta d\u{00ED}vida e todos os pagamentos.",
+            "ja": "\u{3053}\u{306E}\u{50B5}\u{52D9}\u{3068}\u{3059}\u{3079}\u{3066}\u{306E}\u{652F}\u{6255}\u{3044}\u{304C}\u{5B8C}\u{5168}\u{306B}\u{524A}\u{9664}\u{3055}\u{308C}\u{307E}\u{3059}\u{3002}",
+            "ko": "\u{C774} \u{BE5A}\u{ACFC} \u{BAA8}\u{B4E0} \u{ACB0}\u{C81C} \u{AE30}\u{B85D}\u{C774} \u{C601}\u{AD6C}\u{C801}\u{C73C}\u{B85C} \u{C0AD}\u{C81C}\u{B429}\u{B2C8}\u{B2E4}.",
+        ],
+        "alert.copied.title": [
+            "en": "Copied!",
+            "es": "\u{00A1}Copiado!",
+            "fr": "Copi\u{00E9}!",
+            "pt": "Copiado!",
+            "ja": "\u{30B3}\u{30D4}\u{30FC}\u{3057}\u{307E}\u{3057}\u{305F}\u{FF01}",
+            "ko": "\u{BCF5}\u{C0AC}\u{B428}!",
+        ],
+        "alert.copied.message": [
+            "en": "Your debt summary has been copied to the clipboard.",
+            "es": "El resumen de deudas se ha copiado al portapapeles.",
+            "fr": "Votre r\u{00E9}sum\u{00E9} de dettes a \u{00E9}t\u{00E9} copi\u{00E9} dans le presse-papiers.",
+            "pt": "O resumo das d\u{00ED}vidas foi copiado para a \u{00E1}rea de transfer\u{00EA}ncia.",
+            "ja": "\u{50B5}\u{52D9}\u{306E}\u{6982}\u{8981}\u{304C}\u{30AF}\u{30EA}\u{30C3}\u{30D7}\u{30DC}\u{30FC}\u{30C9}\u{306B}\u{30B3}\u{30D4}\u{30FC}\u{3055}\u{308C}\u{307E}\u{3057}\u{305F}\u{3002}",
+            "ko": "\u{BE5A} \u{C694}\u{C57D}\u{C774} \u{D074}\u{B9BD}\u{BCF4}\u{B4DC}\u{C5D0} \u{BCF5}\u{C0AC}\u{B418}\u{C5C8}\u{C2B5}\u{B2C8}\u{B2E4}.",
+        ],
+    ]
+}

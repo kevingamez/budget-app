@@ -12,6 +12,7 @@ struct ContentView: View {
     @AppStorage("hasCompletedOnboarding") private var hasCompletedOnboarding = false
     @State private var selectedTab: AppTab = .dashboard
     private var authService = SupabaseAuthService.shared
+    private var themeManager = ThemeManager.shared
 
     var body: some View {
         Group {
@@ -27,6 +28,8 @@ struct ContentView: View {
                     .transition(.opacity)
             }
         }
+        .id(themeManager.currentId)
+        .preferredColorScheme(themeManager.current.preferredScheme)
         .animation(AppAnimations.sheetSpring, value: hasCompletedOnboarding)
         .animation(AppAnimations.sheetSpring, value: authService.isAuthenticated)
         .task {
