@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Debt Tracker</string>
+
+    <string name="tab_dashboard">홈</string>
+    <string name="tab_debts">채무</string>
+    <string name="tab_activity">활동</string>
+    <string name="tab_settings">설정</string>
+
+    <string name="auth_welcome">다시 오신 것을 환영합니다</string>
+    <string name="auth_subtitle">로그인하여 데이터를 동기화하세요</string>
+    <string name="auth_email">이메일</string>
+    <string name="auth_password">비밀번호</string>
+    <string name="auth_signin">로그인</string>
+    <string name="auth_signup">가입하기</string>
+    <string name="auth_signout">로그아웃</string>
+    <string name="auth_no_account">계정이 없으신가요?</string>
+
+    <string name="dashboard_greeting">안녕하세요</string>
+    <string name="dashboard_overview">채무 개요</string>
+    <string name="dashboard_net_balance">순잔액</string>
+    <string name="dashboard_owed_to_me">받을 돈</string>
+    <string name="dashboard_i_owe">갚을 돈</string>
+    <string name="dashboard_active_debts">진행 중인 채무</string>
+    <string name="dashboard_overdue">연체</string>
+    <string name="dashboard_almost_paid">거의 상환</string>
+    <string name="dashboard_recent_payments">최근 결제</string>
+    <string name="dashboard_lifetime_stats">전체 통계</string>
+    <string name="dashboard_see_all">모두 보기</string>
+
+    <string name="debts_title">채무</string>
+    <string name="debts_search">채무 검색…</string>
+    <string name="debts_filter_all">전체</string>
+    <string name="debts_empty_title">채무가 없습니다</string>
+    <string name="debts_empty_subtitle">+ 를 눌러 추가하세요</string>
+
+    <string name="add_debt_title">새 채무</string>
+    <string name="add_debt_someone_owes">받을 돈</string>
+    <string name="add_debt_i_owe">갚을 돈</string>
+    <string name="add_debt_description">설명</string>
+    <string name="add_debt_description_hint">무엇에 대한 채무인가요?</string>
+    <string name="add_debt_person">상대</string>
+    <string name="add_debt_person_hint">이름</string>
+    <string name="add_debt_category">카테고리</string>
+    <string name="add_debt_due_date">기한</string>
+    <string name="add_debt_notes">메모</string>
+    <string name="add_debt_notes_hint">선택 메모…</string>
+    <string name="add_debt_save">저장</string>
+
+    <string name="common_cancel">취소</string>
+    <string name="common_ok">확인</string>
+    <string name="common_delete">삭제</string>
+    <string name="common_edit">편집</string>
+    <string name="common_done">완료</string>
+    <string name="common_pay">결제</string>
+    <string name="common_paid">결제됨</string>
+    <string name="common_paid_in_full">전액 결제됨</string>
+
+    <string name="activity_title">활동</string>
+    <string name="activity_today">오늘</string>
+    <string name="activity_yesterday">어제</string>
+    <string name="activity_this_week">이번 주</string>
+    <string name="activity_this_month">이번 달</string>
+
+    <string name="settings_title">설정</string>
+    <string name="settings_section_preferences">환경설정</string>
+    <string name="settings_section_security">보안</string>
+    <string name="settings_section_data">데이터</string>
+    <string name="settings_section_account">계정</string>
+    <string name="settings_section_about">정보</string>
+    <string name="settings_signed_out">로그아웃됨</string>
+    <string name="settings_signed_in_with">%1$s 로 로그인됨</string>
+    <string name="settings_clear_all_data">모든 데이터 삭제</string>
+    <string name="settings_load_sample_data">샘플 데이터 불러오기</string>
+    <string name="settings_version">버전</string>
+    <string name="settings_developer">개발자</string>
+    <string name="settings_developer_name">Kevin Gamez</string>
+</resources>

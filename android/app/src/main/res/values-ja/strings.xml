@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Debt Tracker</string>
+
+    <string name="tab_dashboard">ホーム</string>
+    <string name="tab_debts">借入</string>
+    <string name="tab_activity">アクティビティ</string>
+    <string name="tab_settings">設定</string>
+
+    <string name="auth_welcome">おかえりなさい</string>
+    <string name="auth_subtitle">サインインしてデータを同期</string>
+    <string name="auth_email">メール</string>
+    <string name="auth_password">パスワード</string>
+    <string name="auth_signin">サインイン</string>
+    <string name="auth_signup">登録</string>
+    <string name="auth_signout">サインアウト</string>
+    <string name="auth_no_account">アカウントをお持ちでない方</string>
+
+    <string name="dashboard_greeting">こんばんは</string>
+    <string name="dashboard_overview">借入の概要</string>
+    <string name="dashboard_net_balance">純残高</string>
+    <string name="dashboard_owed_to_me">受取</string>
+    <string name="dashboard_i_owe">支払</string>
+    <string name="dashboard_active_debts">アクティブな借入</string>
+    <string name="dashboard_overdue">期限超過</string>
+    <string name="dashboard_almost_paid">あと少しで完済</string>
+    <string name="dashboard_recent_payments">最近の支払</string>
+    <string name="dashboard_lifetime_stats">累計統計</string>
+    <string name="dashboard_see_all">すべて見る</string>
+
+    <string name="debts_title">借入</string>
+    <string name="debts_search">借入を検索…</string>
+    <string name="debts_filter_all">すべて</string>
+    <string name="debts_empty_title">借入はまだありません</string>
+    <string name="debts_empty_subtitle">+ をタップして追加</string>
+
+    <string name="add_debt_title">新規借入</string>
+    <string name="add_debt_someone_owes">誰かが私に借りている</string>
+    <string name="add_debt_i_owe">私が誰かに借りている</string>
+    <string name="add_debt_description">説明</string>
+    <string name="add_debt_description_hint">用途は？</string>
+    <string name="add_debt_person">相手</string>
+    <string name="add_debt_person_hint">名前</string>
+    <string name="add_debt_category">カテゴリ</string>
+    <string name="add_debt_due_date">期日</string>
+    <string name="add_debt_notes">メモ</string>
+    <string name="add_debt_notes_hint">任意のメモ…</string>
+    <string name="add_debt_save">保存</string>
+
+    <string name="common_cancel">キャンセル</string>
+    <string name="common_ok">OK</string>
+    <string name="common_delete">削除</string>
+    <string name="common_edit">編集</string>
+    <string name="common_done">完了</string>
+    <string name="common_pay">支払う</string>
+    <string name="common_paid">支払済</string>
+    <string name="common_paid_in_full">全額支払済</string>
+
+    <string name="activity_title">アクティビティ</string>
+    <string name="activity_today">今日</string>
+    <string name="activity_yesterday">昨日</string>
+    <string name="activity_this_week">今週</string>
+    <string name="activity_this_month">今月</string>
+
+    <string name="settings_title">設定</string>
+    <string name="settings_section_preferences">環境設定</string>
+    <string name="settings_section_security">セキュリティ</string>
+    <string name="settings_section_data">データ</string>
+    <string name="settings_section_account">アカウント</string>
+    <string name="settings_section_about">アプリ情報</string>
+    <string name="settings_signed_out">サインアウト中</string>
+    <string name="settings_signed_in_with">%1$s でサインイン中</string>
+    <string name="settings_clear_all_data">すべてのデータを削除</string>
+    <string name="settings_load_sample_data">サンプルデータを読み込む</string>
+    <string name="settings_version">バージョン</string>
+    <string name="settings_developer">開発者</string>
+    <string name="settings_developer_name">Kevin Gamez</string>
+</resources>

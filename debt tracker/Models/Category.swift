@@ -27,6 +27,11 @@ final class DebtCategory {
         self.createdAt = Date()
     }
 
+    /// `@MainActor` because `DebtCategoryType.label` touches the AppStrings
+    /// singleton, which is MainActor-isolated. SwiftData's `@Model` macro
+    /// emits a nonisolated convenience init by default, so we re-isolate
+    /// here.
+    @MainActor
     convenience init(from type: DebtCategoryType) {
         self.init(
             name: type.label,

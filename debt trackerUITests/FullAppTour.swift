@@ -6,7 +6,12 @@ import XCTest
 ///
 /// Every test attaches a screenshot at each interesting frame so the .xcresult
 /// bundle doubles as a visual walkthrough.
-final class FullAppTour: XCTestCase {
+/// The XCUITest target inherits the app's `SWIFT_DEFAULT_ACTOR_ISOLATION =
+/// MainActor`, which would make the override signatures clash with
+/// `XCTestCase`'s nonisolated versions under Swift 6. Pinning the class to
+/// `nonisolated` keeps the overrides legal; UI assertions don't need to
+/// touch any MainActor state.
+nonisolated final class FullAppTour: XCTestCase {
 
     var app: XCUIApplication!
 

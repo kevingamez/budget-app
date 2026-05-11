@@ -18,7 +18,8 @@ DerivedData/
 .build/
 Packages/
 Package.pins
-Package.resolved
+# Package.resolved is intentionally tracked so dependency versions are
+# reproducible across machines and so supply-chain changes show up in PRs.
 
 # CocoaPods (not used but just in case)
 Pods/
@@ -44,3 +45,15 @@ Secrets.plist
 
 # Claude Code
 .claude/
+
+# Android
+android/.gradle/
+android/.idea/
+android/build/
+android/app/build/
+android/local.properties
+android/captures/
+android/*.iml
+android/app/*.iml
+android/gradle-app.setting
+android/.cxx/

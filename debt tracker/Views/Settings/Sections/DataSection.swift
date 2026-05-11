@@ -58,8 +58,11 @@ struct DataSection: View {
 /// On iOS the payload is marked `.localOnly` (so it isn't pushed to other
 /// devices via Universal Clipboard) and given a 60-second expiry so debt
 /// names + amounts don't linger indefinitely in system paste history.
-/// AppKit's NSPasteboard offers no equivalent expiration knob, so on macOS
-/// the user must clear the clipboard themselves.
+///
+/// AppKit's `NSPasteboard` exposes no native expiration API, but we can
+/// approximate one: snapshot `changeCount` after writing, then 60 s later
+/// (re-)clear the clipboard only if no one else has overwritten it. That
+/// way the user's next copy from another app is left alone.
 enum ClipboardWriter {
     static func write(_ string: String) {
         #if canImport(UIKit)
@@ -72,8 +75,18 @@ enum ClipboardWriter {
             ]
         )
         #elseif canImport(AppKit)
-        NSPasteboard.general.clearContents()
-        NSPasteboard.general.setString(string, forType: .string)
+        let pb = NSPasteboard.general
+        pb.clearContents()
+        pb.setString(string, forType: .string)
+        let writtenCount = pb.changeCount
+        DispatchQueue.main.asyncAfter(deadline: .now() + 60) {
+            // If the user (or another app) copied something else in the
+            // meantime, leave their content alone. Otherwise wipe ours so
+            // financial data doesn't sit on the clipboard indefinitely.
+            if NSPasteboard.general.changeCount == writtenCount {
+                NSPasteboard.general.clearContents()
+            }
+        }
         #endif
     }
 }

@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Debt Tracker</string>
+
+    <string name="tab_dashboard">Accueil</string>
+    <string name="tab_debts">Dettes</string>
+    <string name="tab_activity">Activité</string>
+    <string name="tab_settings">Réglages</string>
+
+    <string name="auth_welcome">Bon retour</string>
+    <string name="auth_subtitle">Connectez-vous pour synchroniser vos données</string>
+    <string name="auth_email">E-mail</string>
+    <string name="auth_password">Mot de passe</string>
+    <string name="auth_signin">Se connecter</string>
+    <string name="auth_signup">S\'inscrire</string>
+    <string name="auth_signout">Se déconnecter</string>
+    <string name="auth_no_account">Pas encore de compte ?</string>
+
+    <string name="dashboard_greeting">Bonsoir</string>
+    <string name="dashboard_overview">Voici l\'aperçu de vos dettes</string>
+    <string name="dashboard_net_balance">Solde net</string>
+    <string name="dashboard_owed_to_me">On me doit</string>
+    <string name="dashboard_i_owe">Je dois</string>
+    <string name="dashboard_active_debts">Dettes actives</string>
+    <string name="dashboard_overdue">En retard</string>
+    <string name="dashboard_almost_paid">Presque payées</string>
+    <string name="dashboard_recent_payments">Paiements récents</string>
+    <string name="dashboard_lifetime_stats">Statistiques globales</string>
+    <string name="dashboard_see_all">Tout voir</string>
+
+    <string name="debts_title">Dettes</string>
+    <string name="debts_search">Rechercher des dettes…</string>
+    <string name="debts_filter_all">Toutes</string>
+    <string name="debts_empty_title">Aucune dette</string>
+    <string name="debts_empty_subtitle">Appuyez sur + pour en ajouter une</string>
+
+    <string name="add_debt_title">Nouvelle dette</string>
+    <string name="add_debt_someone_owes">Quelqu\'un me doit</string>
+    <string name="add_debt_i_owe">Je dois à quelqu\'un</string>
+    <string name="add_debt_description">Description</string>
+    <string name="add_debt_description_hint">Pour quoi ?</string>
+    <string name="add_debt_person">Personne</string>
+    <string name="add_debt_person_hint">Nom</string>
+    <string name="add_debt_category">Catégorie</string>
+    <string name="add_debt_due_date">Échéance</string>
+    <string name="add_debt_notes">Notes</string>
+    <string name="add_debt_notes_hint">Notes facultatives…</string>
+    <string name="add_debt_save">Enregistrer</string>
+
+    <string name="common_cancel">Annuler</string>
+    <string name="common_ok">OK</string>
+    <string name="common_delete">Supprimer</string>
+    <string name="common_edit">Modifier</string>
+    <string name="common_done">Terminé</string>
+    <string name="common_pay">Payer</string>
+    <string name="common_paid">Payé</string>
+    <string name="common_paid_in_full">Payé en totalité</string>
+
+    <string name="activity_title">Activité</string>
+    <string name="activity_today">Aujourd\'hui</string>
+    <string name="activity_yesterday">Hier</string>
+    <string name="activity_this_week">Cette semaine</string>
+    <string name="activity_this_month">Ce mois-ci</string>
+
+    <string name="settings_title">Réglages</string>
+    <string name="settings_section_preferences">Préférences</string>
+    <string name="settings_section_security">Sécurité</string>
+    <string name="settings_section_data">Données</string>
+    <string name="settings_section_account">Compte</string>
+    <string name="settings_section_about">À propos</string>
+    <string name="settings_signed_out">Déconnecté</string>
+    <string name="settings_signed_in_with">Connecté via %1$s</string>
+    <string name="settings_clear_all_data">Effacer toutes les données</string>
+    <string name="settings_load_sample_data">Charger l\'exemple</string>
+    <string name="settings_version">Version</string>
+    <string name="settings_developer">Développeur</string>
+    <string name="settings_developer_name">Kevin Gamez</string>
+</resources>

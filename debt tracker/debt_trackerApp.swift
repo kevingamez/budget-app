@@ -48,11 +48,22 @@ struct debt_trackerApp: App {
 
         let storeURL = URL.applicationSupportDirectory
             .appending(path: "DebtTracker.sqlite")
+
+        // Set Application Support's protection class BEFORE the store is
+        // created. Files inherit their parent directory's class on creation,
+        // so this catches future WAL/SHM rolls and the SwiftData
+        // `.externalStorage` blob directory that we don't enumerate by name.
+        applyCompleteFileProtection(toDirectory: URL.applicationSupportDirectory)
+
         let config = ModelConfiguration(schema: schema, url: storeURL)
 
         do {
             let container = try ModelContainer(for: schema, configurations: config)
-            applyCompleteFileProtection(at: storeURL)
+            // Belt-and-braces: tighten protection on every sibling that
+            // already exists, since SwiftData may have created them before
+            // we applied the directory class (first launch race) or with
+            // SQLite's default `.completeUnlessOpen` class.
+            applyCompleteFileProtection(toAllStoreSiblings: storeURL)
             return container
         } catch {
             // Migration failures are rare but real, and `fatalError` makes the
@@ -65,19 +76,73 @@ struct debt_trackerApp: App {
         }
     }
 
-    /// Apply `.complete` protection to the SwiftData SQLite + WAL/SHM siblings.
-    private static func applyCompleteFileProtection(at storeURL: URL) {
+    /// Apply `.complete` protection to a directory so files created inside
+    /// it later inherit the same class. iOS only applies inheritance at
+    /// file-creation time, which is why we set this before the store opens.
+    private static func applyCompleteFileProtection(toDirectory dir: URL) {
         let fm = FileManager.default
-        let candidates = [
+        if !fm.fileExists(atPath: dir.path) {
+            try? fm.createDirectory(at: dir, withIntermediateDirectories: true,
+                                    attributes: [.protectionKey: FileProtectionType.complete])
+            return
+        }
+        try? fm.setAttributes(
+            [.protectionKey: FileProtectionType.complete],
+            ofItemAtPath: dir.path
+        )
+    }
+
+    /// Apply `.complete` to every file SwiftData might write next to the
+    /// main store: the SQLite database, its WAL/SHM journals, and the
+    /// `.externalStorage` blob folder used for `@Attribute(.externalStorage)`
+    /// payloads (profile photos, etc.). Walks recursively so future
+    /// per-attachment files inside the blob folder are covered too.
+    private static func applyCompleteFileProtection(toAllStoreSiblings storeURL: URL) {
+        let fm = FileManager.default
+        let parent = storeURL.deletingLastPathComponent()
+        let base = storeURL.deletingPathExtension().lastPathComponent
+
+        let knownSiblings = [
             storeURL,
-            storeURL.deletingPathExtension().appendingPathExtension("sqlite-wal"),
-            storeURL.deletingPathExtension().appendingPathExtension("sqlite-shm"),
+            parent.appending(path: "\(base).sqlite-wal"),
+            parent.appending(path: "\(base).sqlite-shm"),
         ]
-        for url in candidates where fm.fileExists(atPath: url.path) {
+        for url in knownSiblings where fm.fileExists(atPath: url.path) {
             try? fm.setAttributes(
                 [.protectionKey: FileProtectionType.complete],
                 ofItemAtPath: url.path
             )
+        }
+
+        // SwiftData stores `.externalStorage` blobs in a folder named after
+        // the store (e.g. `DebtTracker.sqlite_SUPPORT/external_data/...`).
+        // Walk the parent directory and tighten anything whose name starts
+        // with the store basename — covers both the SUPPORT folder and any
+        // future variants Apple ships.
+        if let entries = try? fm.contentsOfDirectory(at: parent, includingPropertiesForKeys: nil) {
+            for entry in entries where entry.lastPathComponent.hasPrefix(base) {
+                applyCompleteRecursive(at: entry)
+            }
+        }
+    }
+
+    private static func applyCompleteRecursive(at url: URL) {
+        let fm = FileManager.default
+        var isDir: ObjCBool = false
+        guard fm.fileExists(atPath: url.path, isDirectory: &isDir) else { return }
+
+        try? fm.setAttributes(
+            [.protectionKey: FileProtectionType.complete],
+            ofItemAtPath: url.path
+        )
+        guard isDir.boolValue else { return }
+        if let enumerator = fm.enumerator(at: url, includingPropertiesForKeys: nil) {
+            for case let child as URL in enumerator {
+                try? fm.setAttributes(
+                    [.protectionKey: FileProtectionType.complete],
+                    ofItemAtPath: child.path
+                )
+            }
         }
     }
 

@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Debt Tracker</string>
+
+    <!-- Tabs -->
+    <string name="tab_dashboard">Dashboard</string>
+    <string name="tab_debts">Debts</string>
+    <string name="tab_activity">Activity</string>
+    <string name="tab_settings">Settings</string>
+
+    <!-- Auth -->
+    <string name="auth_welcome">Welcome Back</string>
+    <string name="auth_subtitle">Sign in to sync your data</string>
+    <string name="auth_email">Email</string>
+    <string name="auth_password">Password</string>
+    <string name="auth_signin">Sign In</string>
+    <string name="auth_signup">Sign Up</string>
+    <string name="auth_signout">Sign Out</string>
+    <string name="auth_no_account">Don\'t have an account?</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_greeting">Good Evening</string>
+    <string name="dashboard_overview">Here\'s your debt overview</string>
+    <string name="dashboard_net_balance">Net Balance</string>
+    <string name="dashboard_owed_to_me">Owed to Me</string>
+    <string name="dashboard_i_owe">I Owe</string>
+    <string name="dashboard_active_debts">Active Debts</string>
+    <string name="dashboard_overdue">Overdue</string>
+    <string name="dashboard_almost_paid">Almost Paid</string>
+    <string name="dashboard_recent_payments">Recent Payments</string>
+    <string name="dashboard_lifetime_stats">Lifetime Stats</string>
+    <string name="dashboard_see_all">See all</string>
+
+    <!-- Debts -->
+    <string name="debts_title">Debts</string>
+    <string name="debts_search">Search debts…</string>
+    <string name="debts_filter_all">All</string>
+    <string name="debts_empty_title">No debts yet</string>
+    <string name="debts_empty_subtitle">Tap + to add one</string>
+
+    <!-- Add Debt -->
+    <string name="add_debt_title">New Debt</string>
+    <string name="add_debt_someone_owes">Someone owes me</string>
+    <string name="add_debt_i_owe">I owe someone</string>
+    <string name="add_debt_description">Description</string>
+    <string name="add_debt_description_hint">What\'s this for?</string>
+    <string name="add_debt_person">Person</string>
+    <string name="add_debt_person_hint">Name</string>
+    <string name="add_debt_category">Category</string>
+    <string name="add_debt_due_date">Due Date</string>
+    <string name="add_debt_notes">Notes</string>
+    <string name="add_debt_notes_hint">Optional notes…</string>
+    <string name="add_debt_save">Save</string>
+
+    <!-- Common -->
+    <string name="common_cancel">Cancel</string>
+    <string name="common_ok">OK</string>
+    <string name="common_delete">Delete</string>
+    <string name="common_edit">Edit</string>
+    <string name="common_done">Done</string>
+    <string name="common_pay">Pay</string>
+    <string name="common_paid">Paid</string>
+    <string name="common_paid_in_full">Paid in full</string>
+
+    <!-- Activity -->
+    <string name="activity_title">Activity</string>
+    <string name="activity_today">Today</string>
+    <string name="activity_yesterday">Yesterday</string>
+    <string name="activity_this_week">This Week</string>
+    <string name="activity_this_month">This Month</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Settings</string>
+    <string name="settings_section_preferences">Preferences</string>
+    <string name="settings_section_security">Security</string>
+    <string name="settings_section_data">Data</string>
+    <string name="settings_section_account">Account</string>
+    <string name="settings_section_about">About</string>
+    <string name="settings_signed_out">Signed out</string>
+    <string name="settings_signed_in_with">Signed in with %1$s</string>
+    <string name="settings_clear_all_data">Clear all data</string>
+    <string name="settings_load_sample_data">Load sample data</string>
+    <string name="settings_version">Version</string>
+    <string name="settings_developer">Developer</string>
+    <string name="settings_developer_name">Kevin Gamez</string>
+</resources>

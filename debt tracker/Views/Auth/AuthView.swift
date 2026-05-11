@@ -138,7 +138,12 @@ struct AuthView: View {
                                 request.nonce = AppleSignInService.shared.currentNonceHash()
                             },
                             onCompletion: { result in
+                                // Capture the raw nonce once, then immediately
+                                // clear it. The OIDC nonce is single-use; we
+                                // must not leave it cached for a subsequent
+                                // re-tap, cancel, or error retry to consume.
                                 let raw = AppleSignInService.shared.currentRawNonce()
+                                AppleSignInService.shared.clearNonce()
                                 switch result {
                                 case .success(let auth):
                                     guard let credential = auth.credential as? ASAuthorizationAppleIDCredential,

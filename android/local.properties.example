@@ -1,0 +1,4 @@
+# Copy to `local.properties` (which is gitignored) and fill in.
+# Mirrors how iOS reads `Secrets.plist`.
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_ANON_KEY=eyJhbGciOi...

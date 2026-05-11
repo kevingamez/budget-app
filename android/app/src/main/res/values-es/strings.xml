@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Debt Tracker</string>
+
+    <!-- Tabs -->
+    <string name="tab_dashboard">Inicio</string>
+    <string name="tab_debts">Deudas</string>
+    <string name="tab_activity">Actividad</string>
+    <string name="tab_settings">Ajustes</string>
+
+    <!-- Auth -->
+    <string name="auth_welcome">Bienvenido</string>
+    <string name="auth_subtitle">Inicia sesión para sincronizar tus datos</string>
+    <string name="auth_email">Correo</string>
+    <string name="auth_password">Contraseña</string>
+    <string name="auth_signin">Iniciar sesión</string>
+    <string name="auth_signup">Registrarse</string>
+    <string name="auth_signout">Cerrar sesión</string>
+    <string name="auth_no_account">¿No tienes cuenta?</string>
+
+    <!-- Dashboard -->
+    <string name="dashboard_greeting">Buenas tardes</string>
+    <string name="dashboard_overview">Aquí está tu resumen de deudas</string>
+    <string name="dashboard_net_balance">Balance Neto</string>
+    <string name="dashboard_owed_to_me">Me deben</string>
+    <string name="dashboard_i_owe">Yo debo</string>
+    <string name="dashboard_active_debts">Deudas activas</string>
+    <string name="dashboard_overdue">Vencidas</string>
+    <string name="dashboard_almost_paid">Casi pagadas</string>
+    <string name="dashboard_recent_payments">Pagos recientes</string>
+    <string name="dashboard_lifetime_stats">Estadísticas totales</string>
+    <string name="dashboard_see_all">Ver todos</string>
+
+    <!-- Debts -->
+    <string name="debts_title">Deudas</string>
+    <string name="debts_search">Buscar deudas…</string>
+    <string name="debts_filter_all">Todas</string>
+    <string name="debts_empty_title">Sin deudas todavía</string>
+    <string name="debts_empty_subtitle">Toca + para agregar una</string>
+
+    <!-- Add Debt -->
+    <string name="add_debt_title">Nueva deuda</string>
+    <string name="add_debt_someone_owes">Alguien me debe</string>
+    <string name="add_debt_i_owe">Yo le debo a alguien</string>
+    <string name="add_debt_description">Descripción</string>
+    <string name="add_debt_description_hint">¿Para qué es?</string>
+    <string name="add_debt_person">Persona</string>
+    <string name="add_debt_person_hint">Nombre</string>
+    <string name="add_debt_category">Categoría</string>
+    <string name="add_debt_due_date">Fecha límite</string>
+    <string name="add_debt_notes">Notas</string>
+    <string name="add_debt_notes_hint">Notas opcionales…</string>
+    <string name="add_debt_save">Guardar</string>
+
+    <!-- Common -->
+    <string name="common_cancel">Cancelar</string>
+    <string name="common_ok">OK</string>
+    <string name="common_delete">Eliminar</string>
+    <string name="common_edit">Editar</string>
+    <string name="common_done">Listo</string>
+    <string name="common_pay">Pagar</string>
+    <string name="common_paid">Pagado</string>
+    <string name="common_paid_in_full">Pagado por completo</string>
+
+    <!-- Activity -->
+    <string name="activity_title">Actividad</string>
+    <string name="activity_today">Hoy</string>
+    <string name="activity_yesterday">Ayer</string>
+    <string name="activity_this_week">Esta semana</string>
+    <string name="activity_this_month">Este mes</string>
+
+    <!-- Settings -->
+    <string name="settings_title">Ajustes</string>
+    <string name="settings_section_preferences">Preferencias</string>
+    <string name="settings_section_security">Seguridad</string>
+    <string name="settings_section_data">Datos</string>
+    <string name="settings_section_account">Cuenta</string>
+    <string name="settings_section_about">Acerca de</string>
+    <string name="settings_signed_out">Sesión cerrada</string>
+    <string name="settings_signed_in_with">Sesión iniciada con %1$s</string>
+    <string name="settings_clear_all_data">Borrar todos los datos</string>
+    <string name="settings_load_sample_data">Cargar datos de ejemplo</string>
+    <string name="settings_version">Versión</string>
+    <string name="settings_developer">Desarrollador</string>
+    <string name="settings_developer_name">Kevin Gamez</string>
+</resources>

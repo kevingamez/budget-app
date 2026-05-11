@@ -1,6 +1,6 @@
 # Debt Tracker
 
-A production-grade iOS app for managing personal debts and payments. Built entirely with SwiftUI and SwiftData, featuring a modern dark UI, real-time multi-language support, live currency conversion, biometric security, and iCloud sync readiness. Zero third-party dependencies.
+A production-grade iOS app for managing personal debts and payments. Built with SwiftUI and SwiftData, featuring a modern dark UI, real-time multi-language support, live currency conversion, and biometric security. Local-first storage: debts, payments, contacts, and notes never leave the device, except for opt-in AI insights that go through a Supabase Edge Function (anonymized financial summary only).
 
 ## Contents
 
@@ -32,15 +32,17 @@ Debt Tracker is a personal finance tool for keeping track of money owed to you a
 | Layer | Technology |
 |-------|-----------|
 | **Framework** | SwiftUI (Declarative UI) |
-| **Persistence** | SwiftData (Swift-native ORM over Core Data) |
-| **Sync** | CloudKit-ready architecture (all models compatible) |
+| **Persistence** | SwiftData (local-only `.sqlite` in Application Support, `.complete` file protection) |
+| **Sync** | None automatic. Data stays on-device. |
 | **Concurrency** | Swift 6 strict concurrency (`MainActor` isolation) |
-| **Auth** | LocalAuthentication (Face ID, Touch ID, Optic ID) |
+| **Account auth** | Supabase Auth (email + Sign in with Apple) |
+| **Device auth** | LocalAuthentication (Face ID, Touch ID, Optic ID) |
+| **AI insights (opt-in)** | Supabase Edge Function (`ai-insights`) proxying Anthropic Claude. Client sends a typed financial summary with anonymized debtor counts; the function rejects unknown fields and rate-limits per user in Postgres. |
 | **Notifications** | UserNotifications (local, on-device) |
-| **Exchange Rates** | open.er-api.com (free tier, no API key, 1hr cache) |
+| **Exchange rates** | open.er-api.com (free tier, no API key, 1hr cache) |
 | **Localization** | Custom runtime i18n engine (`AppStrings` singleton) |
 | **CI** | GitHub Actions (Xcode build on macOS runner) |
-| **Dependencies** | None. 100% Apple first-party frameworks |
+| **Third-party SDKs** | `supabase-swift` (auth + functions). No analytics, no ad SDKs. |
 
 ## Architecture
 
@@ -339,6 +341,16 @@ xcodebuild -project "debt tracker.xcodeproj" \
   CODE_SIGNING_ALLOWED=NO \
   build
 ```
+
+## Privacy
+
+- **Local-first:** debts, payments, contacts, notes, and profile photos live in a SwiftData SQLite store under Application Support with `.complete` file protection. They are not synced to iCloud automatically.
+- **Account auth:** email + password and Sign in with Apple are handled by Supabase. Supabase stores your account email and a hashed password; it never sees your debt data.
+- **Exchange rates:** the app fetches USD-base rates from `open.er-api.com`. The request contains no user identifiers.
+- **AI insights (opt-in):** if you tap a dashboard card with AI consent granted, the app posts a typed snapshot — totals, counts, currency code, the language code, and the number of top debtors — to a Supabase Edge Function. Names, notes, and other free-text fields are never sent. The function calls Anthropic's Claude API and returns a short tip. A Postgres counter caps usage at 50 calls per user per day.
+- **No analytics:** no Firebase, no crash reporting SDKs, no ad networks.
+
+App Store privacy answers should reflect: contact info collected (email, name from Apple), financial info processed (locally; only anonymized aggregates leave the device when AI consent is granted), and diagnostic data (none).
 
 ## About
 

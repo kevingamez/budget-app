@@ -28,6 +28,8 @@ struct FinancialSnapshot: Sendable {
     let iOweTotal: Decimal
     let netBalance: Decimal
     let categoryBreakdown: [String: Int]
+    /// PII: top debtors are never sent to the server. Only the count is
+    /// forwarded so the prompt can render anonymized placeholders.
     let topDebtorNames: [String]
     let currencyCode: String
     let tappedCardTitle: String
@@ -49,6 +51,7 @@ enum AIInsightsError: Error {
     case proxyNotConfigured
     case dailyLimitReached
 
+    @MainActor
     var displayMessage: String {
         let S = AppStrings.shared
         switch self {
@@ -92,31 +95,6 @@ enum AIInsightRateLimit {
     }
 }
 
-// MARK: - Model Config
-//
-// The Anthropic API key now lives only on the server (Supabase Edge Function).
-// The operator sets it once with:
-//
-//     supabase secrets set ANTHROPIC_API_KEY=sk-ant-...
-//
-// and deploys the function with:
-//
-//     supabase functions deploy ai-insights
-//
-// The client only needs to know which model to ask for.
-
-private enum AIModelConfig {
-    static let shared: [String: String] = {
-        guard let url = Bundle.main.url(forResource: "Secrets", withExtension: "plist"),
-              let data = try? Data(contentsOf: url),
-              let dict = try? PropertyListSerialization.propertyList(from: data, format: nil) as? [String: String]
-        else { return [:] }
-        return dict
-    }()
-
-    static var model: String { shared["ANTHROPIC_MODEL"] ?? "claude-sonnet-4-6" }
-}
-
 // MARK: - Protocol
 
 protocol AIInsightsServiceProtocol: Sendable {
@@ -124,12 +102,17 @@ protocol AIInsightsServiceProtocol: Sendable {
 }
 
 // MARK: - Anthropic Implementation (via Supabase Edge Function proxy)
+//
+// The Anthropic API key, model, max_tokens, system prompt, and message
+// structure all live on the server (Supabase Edge Function) — see
+// supabase/functions/ai-insights/index.ts. The client only POSTs a typed
+// financial snapshot and a consent flag; any attempt to send extra fields is
+// rejected by the proxy. This shape prevents a modified client from choosing
+// a more expensive model, injecting an arbitrary prompt, or smuggling
+// Anthropic tool definitions through the proxy.
 
 final class AIInsightsService: AIInsightsServiceProtocol, Sendable {
     static let shared = AIInsightsService()
-
-    private let anthropicVersion = "2023-06-01"
-    private let maxTokens = 350
 
     /// URL of the deployed Supabase Edge Function that proxies Anthropic calls.
     /// The function name `ai-insights` must match `supabase/functions/ai-insights/`.
@@ -141,17 +124,15 @@ final class AIInsightsService: AIInsightsServiceProtocol, Sendable {
 
     func fetchInsight(for snapshot: FinancialSnapshot) async throws -> String {
         // Opt-in gate: do not transmit any financial data to a third party
-        // without explicit, granted consent.
-        // NOTE: This client-side flag is bypassable. TODO server-side: persist a
-        // consent record keyed on `auth.uid()` and have the Edge Function reject
-        // requests when no record exists. The `consent: true` body field below
-        // gives the proxy the input it needs to enforce that.
+        // without explicit, granted consent. The server also enforces this —
+        // this client-side check just avoids a wasted network round-trip.
         guard AIConsent.isGranted else {
             throw AIInsightsError.consentRequired
         }
 
         // Defense-in-depth: throttle locally so a stuck UI loop or held button
-        // can't burn cost. The server should also throttle.
+        // can't burn cost. The server enforces the real per-user cap via a
+        // Postgres counter (see migrations/*_ai_usage.sql).
         guard AIInsightRateLimit.tryConsume() else {
             throw AIInsightsError.dailyLimitReached
         }
@@ -175,20 +156,12 @@ final class AIInsightsService: AIInsightsServiceProtocol, Sendable {
         request.timeoutInterval = 20
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("Bearer \(jwt)", forHTTPHeaderField: "Authorization")
-        // anthropic-version is forwarded by the proxy; sending it from the
-        // client is harmless and lets the proxy stay version-agnostic if it
-        // ever decides to honor the header.
-        request.setValue(anthropicVersion, forHTTPHeaderField: "anthropic-version")
 
-        // `consent: true` is sent so the Edge Function can enforce/log consent
-        // server-side. Without this signal the proxy currently relies on JWT alone.
+        // The proxy schema only accepts {consent, snapshot}. Anything else
+        // (model, max_tokens, messages, …) is a hard 400.
         let body: [String: Any] = [
-            "model": AIModelConfig.model,
-            "max_tokens": maxTokens,
             "consent": true,
-            "messages": [
-                ["role": "user", "content": buildPrompt(snapshot)]
-            ]
+            "snapshot": Self.encode(snapshot),
         ]
         request.httpBody = try JSONSerialization.data(withJSONObject: body)
 
@@ -230,51 +203,32 @@ final class AIInsightsService: AIInsightsServiceProtocol, Sendable {
         return text
     }
 
-    private func buildPrompt(_ s: FinancialSnapshot) -> String {
-        let languageInstruction: String
-        switch s.languageCode {
-        case "es": languageInstruction = "Respond in Spanish."
-        case "fr": languageInstruction = "Respond in French."
-        case "pt": languageInstruction = "Respond in Portuguese."
-        case "ja": languageInstruction = "Respond in Japanese."
-        case "ko": languageInstruction = "Respond in Korean."
-        default: languageInstruction = "Respond in English."
-        }
+    /// Build the JSON payload the proxy accepts. Names are anonymized to a
+    /// count so the third-party LLM never sees PII even on the server.
+    private static func encode(_ s: FinancialSnapshot) -> [String: Any] {
+        return [
+            "totalDebts": s.totalDebts,
+            "activeDebts": s.activeDebts,
+            "overdueDebts": s.overdueDebts,
+            "totalAmountTracked": decimalToDouble(s.totalAmountTracked),
+            "owedToMeTotal": decimalToDouble(s.owedToMeTotal),
+            "iOweTotal": decimalToDouble(s.iOweTotal),
+            "netBalance": decimalToDouble(s.netBalance),
+            "totalPaidOff": s.totalPaidOff,
+            "averageAmount": decimalToDouble(s.averageAmount),
+            "totalPersons": s.totalPersons,
+            "totalPayments": s.totalPayments,
+            "totalPaymentAmount": decimalToDouble(s.totalPaymentAmount),
+            "topDebtorCount": s.topDebtorNames.count,
+            "categoryBreakdown": s.categoryBreakdown,
+            "currencyCode": s.currencyCode,
+            "tappedCardTitle": s.tappedCardTitle,
+            "languageCode": s.languageCode,
+        ]
+    }
 
-        let categoryList = s.categoryBreakdown
-            .sorted { $0.value > $1.value }
-            .prefix(4)
-            .map { "\($0.key): \($0.value)" }
-            .joined(separator: ", ")
-
-        // Anonymize PII before third-party LLM call
-        let anonymizedDebtors = s.topDebtorNames.enumerated().map { idx, _ in "Person \(idx + 1)" }
-        let debtorList = anonymizedDebtors.isEmpty
-            ? "none"
-            : anonymizedDebtors.joined(separator: ", ")
-
-        return """
-        You are a concise personal finance advisor embedded in a debt-tracking iOS app. \
-        \(languageInstruction)
-
-        The user just tapped the "\(s.tappedCardTitle)" card on their dashboard. \
-        Based on their full financial picture below, provide 2-3 sentences of \
-        insightful, actionable advice specifically about what that card reveals. \
-        Be warm, non-judgmental, and specific to their numbers. \
-        Do NOT use markdown. Keep response under 80 words.
-
-        Financial snapshot:
-        - Total debts tracked: \(s.totalDebts) (\(s.activeDebts) active, \(s.overdueDebts) overdue)
-        - Amount tracked: \(s.totalAmountTracked) \(s.currencyCode)
-        - Owed to user: \(s.owedToMeTotal) \(s.currencyCode)
-        - User owes: \(s.iOweTotal) \(s.currencyCode)
-        - Net balance: \(s.netBalance) \(s.currencyCode)
-        - Paid off: \(s.totalPaidOff) debts
-        - Average debt: \(s.averageAmount) \(s.currencyCode)
-        - Unique people: \(s.totalPersons)
-        - Total payments recorded: \(s.totalPayments) (sum: \(s.totalPaymentAmount) \(s.currencyCode))
-        - Top categories: \(categoryList)
-        - Contacts with largest balances: \(debtorList)
-        """
+    private static func decimalToDouble(_ d: Decimal) -> Double {
+        let v = NSDecimalNumber(decimal: d).doubleValue
+        return v.isFinite ? v : 0
     }
 }

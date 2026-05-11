@@ -38,16 +38,28 @@ final class AppleSignInService: NSObject, ASAuthorizationControllerDelegate {
 
     /// Public hook so a SwiftUI `SignInWithAppleButton` can configure its
     /// request with the same hashed nonce that the service expects to verify.
-    /// Generates a fresh nonce if one is not already set.
+    ///
+    /// **Always generates a fresh nonce.** The nonce is a per-request,
+    /// single-use anti-replay token; reusing one across sessions would let an
+    /// attacker who captured a prior identity token replay it against the
+    /// auth server. SwiftUI may invoke `onRequest` again after a cancel or a
+    /// re-tap, and we want each of those attempts to mint a new value.
     func currentNonceHash() -> String {
-        if currentNonce == nil {
-            currentNonce = randomNonceString()
-        }
-        return sha256(currentNonce ?? "")
+        let nonce = randomNonceString()
+        currentNonce = nonce
+        return sha256(nonce)
     }
 
     /// Raw (unhashed) nonce, used when forwarding the identity token to Supabase.
     func currentRawNonce() -> String? { currentNonce }
+
+    /// Clear the nonce + completion handlers. Callers must invoke this from
+    /// every terminal path of the Sign in with Apple flow (success, failure,
+    /// cancellation) so a stale nonce can't be reused by a subsequent
+    /// attacker-controlled flow.
+    func clearNonce() {
+        currentNonce = nil
+    }
 
     /// Allow callers (e.g. SwiftUI's `SignInWithAppleButton`) to register
     /// completion handlers when they own the request lifecycle.
@@ -68,6 +80,7 @@ final class AppleSignInService: NSObject, ASAuthorizationControllerDelegate {
 
     /// Process a result from a SwiftUI `SignInWithAppleButton.onCompletion` callback.
     func handle(result: Result<ASAuthorization, Error>) {
+        defer { resetState() }
         switch result {
         case .success(let auth):
             guard let credential = auth.credential as? ASAuthorizationAppleIDCredential,
@@ -75,39 +88,37 @@ final class AppleSignInService: NSObject, ASAuthorizationControllerDelegate {
                   let idToken = String(data: tokenData, encoding: .utf8)
             else {
                 errorHandler?(NSError(domain: "apple", code: -1, userInfo: [NSLocalizedDescriptionKey: "Could not get Apple ID token"]))
-                completion = nil
-                errorHandler = nil
                 return
             }
             completion?(idToken, currentNonce)
-            completion = nil
-            errorHandler = nil
         case .failure(let error):
             errorHandler?(error)
-            completion = nil
-            errorHandler = nil
         }
     }
 
     // MARK: - Delegate
 
     func authorizationController(controller: ASAuthorizationController, didCompleteWithAuthorization authorization: ASAuthorization) {
+        defer { resetState() }
         guard let credential = authorization.credential as? ASAuthorizationAppleIDCredential,
               let tokenData = credential.identityToken,
               let idToken = String(data: tokenData, encoding: .utf8)
         else {
             errorHandler?(NSError(domain: "apple", code: -1, userInfo: [NSLocalizedDescriptionKey: "Could not get Apple ID token"]))
-            completion = nil
-            errorHandler = nil
             return
         }
         completion?(idToken, currentNonce)
-        completion = nil
-        errorHandler = nil
     }
 
     func authorizationController(controller: ASAuthorizationController, didCompleteWithError error: Error) {
+        defer { resetState() }
         errorHandler?(error)
+    }
+
+    /// Clear nonce + handlers after a sign-in attempt finishes. Run from
+    /// every terminal path so a stale nonce can't be replayed.
+    private func resetState() {
+        currentNonce = nil
         completion = nil
         errorHandler = nil
     }
