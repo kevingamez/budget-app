@@ -11,6 +11,16 @@
 
 ## Architecture & Conventions
 
+### File Size Limit (HARD)
+- **No Swift file may exceed 300 lines.** Hard ceiling — no exceptions for "convenience".
+- When approaching the limit, split by responsibility:
+  - **Views** → extract sections into sibling subview files (e.g., `Views/Settings/Sections/`, `Views/Debts/DetailSections/`).
+  - **Reusable subviews** → into their own file under `Views/Components/` if shared, or a feature-local folder if not.
+  - **Static data dictionaries** (e.g., `AppStrings`) → split into `<Type>+<Topic>.swift` extension files holding `static let` slices; the main type merges them at first access.
+  - **ViewModels** → if a single VM grows past 300, it's a smell that two responsibilities live there; split the model.
+- Helpers (`SettingsRow`, `SettingsCard`, `BalanceChip`, etc.) belong in dedicated files when reused; mark them `private struct` if local to one parent file.
+- Verify with: `find "debt tracker" -name "*.swift" -exec wc -l {} \; | sort -rn | head`
+
 ### Pattern: MVVM + SwiftData @Query
 - **Views** own `@Query` for reactive data (source of truth from SwiftData)
 - **ViewModels** use `@Observable` (Observation framework), hold UI state (filters, sort, form fields) and mutation logic
@@ -34,13 +44,16 @@ debt tracker/
 ├── Models/          — SwiftData @Model classes + Enums
 ├── ViewModels/      — @Observable ViewModels
 ├── Views/
-│   ├── Dashboard/   — Dashboard tab views
-│   ├── Debts/       — Debt CRUD views
+│   ├── Dashboard/   — Dashboard tab views (Hero/Quick/Account/Insights/Transactions split per file)
+│   ├── Debts/
+│   │   └── DetailSections/ — DebtDetail subviews (Header, Person, Info, History, Actions)
 │   ├── Activity/    — Payment history feed
-│   ├── Settings/    — Settings & notifications
-│   └── Components/  — Reusable UI components
-├── Theme/           — ColorTokens, Typography, Animations, AppTheme
-├── Services/        — AppStrings (i18n), NotificationService, SampleDataService
+│   ├── Settings/
+│   │   ├── Sections/    — SettingsView subviews (Profile, Preferences, Security, Data, Account, About)
+│   │   └── Appearance/  — AppearanceSettings subviews (ThemePicker, Currency, Converter, Direction)
+│   └── Components/  — Reusable UI components (PersonAvatar, AmountTextField, GradientCard, …)
+├── Theme/           — ColorTokens (reads from ThemeManager), AppThemePalette presets, Typography, Animations
+├── Services/        — AppStrings (i18n) + AppStrings+<Topic>.swift extensions; NotificationService; SampleDataService
 └── Extensions/      — Color+, Decimal+, Date+, View+
 ```
 

@@ -41,12 +41,16 @@ final class NotificationService: NotificationServiceProtocol, Sendable {
         let identifier = "debt-reminder-\(id)"
 
         let content = UNMutableNotificationContent()
-        content.title = "Debt Reminder"
-
-        // Keep notification content generic for privacy
-        let directionText = direction == .owedToMe ? "owes you" : "you owe"
-        content.body = "Reminder: \(personName) \(directionText) — \(title)"
+        content.title = AppStrings.shared.tr("notification.title")
+        // Body intentionally PII-free: counterparty names, debt titles, and amounts
+        // would be visible on the lock screen without authentication.
+        // Details are revealed in-app via the userInfo deep-link payload.
+        content.body = AppStrings.shared.tr("notification.body.generic")
         content.sound = .default
+        content.userInfo = [
+            "debtId": id,
+            "direction": direction == .owedToMe ? "owedToMe" : "iOwe",
+        ]
 
         let components = Calendar.current.dateComponents(
             [.year, .month, .day, .hour, .minute],

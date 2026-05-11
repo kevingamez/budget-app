@@ -15,13 +15,40 @@ extension Notification.Name {
 
 @main
 struct debt_trackerApp: App {
-    let container: ModelContainer = {
+    let container: ModelContainer = Self.makeContainer()
+
+    /// Build the SwiftData container with `.complete` file protection so the
+    /// underlying SQLite is encrypted at rest (unreadable while the device is locked).
+    private static func makeContainer() -> ModelContainer {
+        let schema = Schema([Debt.self, Payment.self, Person.self, DebtCategory.self])
+        let storeURL = URL.applicationSupportDirectory
+            .appending(path: "DebtTracker.sqlite")
+        let config = ModelConfiguration(schema: schema, url: storeURL)
+
         do {
-            return try ModelContainer(for: Debt.self, Payment.self, Person.self, DebtCategory.self)
+            let container = try ModelContainer(for: schema, configurations: config)
+            applyCompleteFileProtection(at: storeURL)
+            return container
         } catch {
             fatalError("Failed to create ModelContainer: \(error)")
         }
-    }()
+    }
+
+    /// Apply `.complete` protection to the SwiftData SQLite + WAL/SHM siblings.
+    private static func applyCompleteFileProtection(at storeURL: URL) {
+        let fm = FileManager.default
+        let candidates = [
+            storeURL,
+            storeURL.deletingPathExtension().appendingPathExtension("sqlite-wal"),
+            storeURL.deletingPathExtension().appendingPathExtension("sqlite-shm"),
+        ]
+        for url in candidates where fm.fileExists(atPath: url.path) {
+            try? fm.setAttributes(
+                [.protectionKey: FileProtectionType.complete],
+                ofItemAtPath: url.path
+            )
+        }
+    }
 
     var body: some Scene {
         WindowGroup {

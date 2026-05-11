@@ -22,6 +22,12 @@ final class CurrencyService {
     // Free API — no key needed, 1500 requests/month
     private let baseURL = "https://open.er-api.com/v6/latest/USD"
 
+    /// Sanity bounds. Any rate outside this range is rejected to defend against
+    /// a poisoned/malformed upstream that would otherwise propagate NaN/Infinity
+    /// into `Decimal` and crash, or silently corrupt amounts shown to the user.
+    private static let minValidRate: Double = 1e-6
+    private static let maxValidRate: Double = 1e6
+
     func fetchRates() async {
         guard !isLoading else { return }
 
@@ -35,9 +41,21 @@ final class CurrencyService {
 
         do {
             guard let url = URL(string: baseURL) else { return }
-            let (data, _) = try await URLSession.shared.data(from: url)
+            let (data, urlResponse) = try await URLSession.shared.data(from: url)
+
+            guard let http = urlResponse as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
+                throw URLError(.badServerResponse)
+            }
+
             let response = try JSONDecoder().decode(ExchangeRateResponse.self, from: data)
-            rates = response.rates
+            guard response.result == "success" else {
+                throw URLError(.cannotParseResponse)
+            }
+
+            rates = Self.sanitize(rates: response.rates)
+            guard !rates.isEmpty else {
+                throw URLError(.cannotParseResponse)
+            }
             lastFetched = Date()
         } catch {
             errorMessage = "Could not fetch exchange rates"
@@ -46,19 +64,30 @@ final class CurrencyService {
         isLoading = false
     }
 
+    /// Drop entries that are NaN, infinite, non-positive, or absurdly large.
+    private static func sanitize(rates: [String: Double]) -> [String: Double] {
+        rates.filter { _, value in
+            value.isFinite && value >= minValidRate && value <= maxValidRate
+        }
+    }
+
     func convert(amount: Decimal, from: String, to: String) -> Decimal? {
-        guard let fromRate = rates[from], let toRate = rates[to], fromRate > 0 else {
+        guard let fromRate = rates[from], let toRate = rates[to],
+              fromRate > 0, toRate > 0 else {
             return nil
         }
-        let usdAmount = NSDecimalNumber(decimal: amount).doubleValue / fromRate
-        let converted = usdAmount * toRate
+        let amountDouble = NSDecimalNumber(decimal: amount).doubleValue
+        let converted = (amountDouble / fromRate) * toRate
+        guard converted.isFinite else { return nil }
         return Decimal(converted)
     }
 
     func rate(from: String, to: String) -> Double? {
-        guard let fromRate = rates[from], let toRate = rates[to], fromRate > 0 else {
+        guard let fromRate = rates[from], let toRate = rates[to],
+              fromRate > 0, toRate > 0 else {
             return nil
         }
-        return toRate / fromRate
+        let r = toRate / fromRate
+        return r.isFinite ? r : nil
     }
 }

@@ -20,7 +20,7 @@ struct DashboardView: View {
                         topBar
                             .staggeredAppear(index: 0)
 
-                        RevolutHeroBalance(
+                        HeroBalanceView(
                             netBalance: viewModel.netBalance,
                             owedToMe: viewModel.totalOwedToMe,
                             iOwe: viewModel.totalIOwe

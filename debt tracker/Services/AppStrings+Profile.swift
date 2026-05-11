@@ -2,6 +2,22 @@ import Foundation
 
 extension AppStrings {
     static let translationsProfile: [String: [String: String]] = [
+        "notification.title": [
+            "en": "Debt Reminder",
+            "es": "Recordatorio de Deuda",
+            "fr": "Rappel de Dette",
+            "pt": "Lembrete de D\u{00ED}vida",
+            "ja": "\u{50B5}\u{52D9}\u{306E}\u{30EA}\u{30DE}\u{30A4}\u{30F3}\u{30C0}\u{30FC}",
+            "ko": "\u{BE5A} \u{C54C}\u{B9BC}",
+        ],
+        "notification.body.generic": [
+            "en": "You have a debt reminder. Open the app for details.",
+            "es": "Tienes un recordatorio. Abre la app para ver los detalles.",
+            "fr": "Vous avez un rappel. Ouvrez l'application pour les d\u{00E9}tails.",
+            "pt": "Voc\u{00EA} tem um lembrete. Abra o app para ver os detalhes.",
+            "ja": "\u{30EA}\u{30DE}\u{30A4}\u{30F3}\u{30C0}\u{30FC}\u{304C}\u{3042}\u{308A}\u{307E}\u{3059}\u{3002}\u{8A73}\u{7D30}\u{306F}\u{30A2}\u{30D7}\u{30EA}\u{3067}\u{78BA}\u{8A8D}\u{3057}\u{3066}\u{304F}\u{3060}\u{3055}\u{3044}\u{3002}",
+            "ko": "\u{C54C}\u{B9BC}\u{C774} \u{C788}\u{C2B5}\u{B2C8}\u{B2E4}. \u{C0C1}\u{C138} \u{B0B4}\u{C6A9}\u{C740} \u{C571}\u{C5D0}\u{C11C} \u{D655}\u{C778}\u{D558}\u{C138}\u{C694}.",
+        ],
         "profile.title": [
             "en": "Profile",
             "es": "Perfil",
@@ -137,6 +153,38 @@ extension AppStrings {
             "pt": "Biometria",
             "ja": "\u{751F}\u{4F53}\u{8A8D}\u{8A3C}",
             "ko": "\u{C0DD}\u{CCB4} \u{C778}\u{C99D}",
+        ],
+        "biometric.locked.title": [
+            "en": "App Locked",
+            "es": "App Bloqueada",
+            "fr": "Application Verrouill\u{00E9}e",
+            "pt": "App Bloqueado",
+            "ja": "\u{30A2}\u{30D7}\u{30EA}\u{306F}\u{30ED}\u{30C3}\u{30AF}\u{3055}\u{308C}\u{3066}\u{3044}\u{307E}\u{3059}",
+            "ko": "\u{C571}\u{C774} \u{C7A0}\u{ACBC}\u{C2B5}\u{B2C8}\u{B2E4}",
+        ],
+        "biometric.locked.subtitle": [
+            "en": "Authenticate to view your debts.",
+            "es": "Aut\u{00E9}nticate para ver tus deudas.",
+            "fr": "Authentifiez-vous pour voir vos dettes.",
+            "pt": "Autentique-se para ver suas d\u{00ED}vidas.",
+            "ja": "\u{50B5}\u{52D9}\u{3092}\u{8868}\u{793A}\u{3059}\u{308B}\u{306B}\u{306F}\u{8A8D}\u{8A3C}\u{3057}\u{3066}\u{304F}\u{3060}\u{3055}\u{3044}\u{3002}",
+            "ko": "\u{BE5A}\u{C744} \u{BCF4}\u{B824}\u{BA74} \u{C778}\u{C99D}\u{D558}\u{C138}\u{C694}.",
+        ],
+        "biometric.locked.unlock": [
+            "en": "Unlock",
+            "es": "Desbloquear",
+            "fr": "D\u{00E9}verrouiller",
+            "pt": "Desbloquear",
+            "ja": "\u{30ED}\u{30C3}\u{30AF}\u{89E3}\u{9664}",
+            "ko": "\u{C7A0}\u{AE08} \u{D574}\u{C81C}",
+        ],
+        "biometric.reason": [
+            "en": "Unlock Debt Tracker",
+            "es": "Desbloquear Debt Tracker",
+            "fr": "D\u{00E9}verrouiller Debt Tracker",
+            "pt": "Desbloquear Debt Tracker",
+            "ja": "Debt Tracker \u{306E}\u{30ED}\u{30C3}\u{30AF}\u{3092}\u{89E3}\u{9664}",
+            "ko": "Debt Tracker \u{C7A0}\u{AE08} \u{D574}\u{C81C}",
         ],
     ]
 }
