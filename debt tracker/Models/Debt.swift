@@ -49,8 +49,13 @@ final class Debt {
     var derivedStatus: DebtStatus {
         if status == .forgiven { return .forgiven }
         if remainingAmount <= 0 { return .paidOff }
-        if paidAmount > 0 { return .partiallyPaid }
+        // Overdue takes precedence over partially-paid: a debt past its due date
+        // with a remaining balance is still overdue even if some payment landed.
+        // Otherwise the OVERDUE badge (gated on this status) silently disappears
+        // the moment a partial payment is recorded, contradicting the dashboard's
+        // overdue count (which uses `isOverdue` directly).
         if isOverdue { return .overdue }
+        if paidAmount > 0 { return .partiallyPaid }
         return .active
     }
 

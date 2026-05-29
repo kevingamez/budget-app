@@ -34,6 +34,20 @@ struct DebtModelTests {
         #expect(debt.derivedStatus == .partiallyPaid)
     }
 
+    @Test("derivedStatus is .overdue (not .partiallyPaid) when a partially-paid debt is past due")
+    func overdueBeatsPartiallyPaid() {
+        let person = Person(name: "Test")
+        let pastDate = Date().addingTimeInterval(-86_400 * 7)
+        let debt = Debt(title: "Loan", totalAmount: 100, direction: .owedToMe, person: person, dueDate: pastDate)
+        let payment = Payment(amount: 40, date: .now, debt: debt)
+        debt.payments.append(payment)
+        #expect(debt.paidAmount == 40)
+        #expect(debt.remainingAmount == 60)
+        #expect(debt.isOverdue == true)
+        // Overdue must win so the OVERDUE badge stays consistent with the dashboard.
+        #expect(debt.derivedStatus == .overdue)
+    }
+
     @Test("derivedStatus is .forgiven when stored status is .forgiven (even if remainder > 0)")
     func forgivenOverridesEverything() {
         let person = Person(name: "Test")
