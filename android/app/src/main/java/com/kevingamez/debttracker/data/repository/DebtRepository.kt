@@ -1,5 +1,7 @@
 package com.kevingamez.debttracker.data.repository
 
+import androidx.room.withTransaction
+import com.kevingamez.debttracker.data.db.AppDatabase
 import com.kevingamez.debttracker.data.db.CategoryDao
 import com.kevingamez.debttracker.data.db.CategoryEntity
 import com.kevingamez.debttracker.data.db.DebtDao
@@ -17,6 +19,7 @@ import javax.inject.Singleton
 /// `@Query` + ViewModel logic — Flow streams of entities the UI observes.
 @Singleton
 class DebtRepository @Inject constructor(
+    private val db: AppDatabase,
     private val debts: DebtDao,
     private val payments: PaymentDao,
     private val persons: PersonDao,
@@ -46,9 +49,13 @@ class DebtRepository @Inject constructor(
 
     suspend fun ensureCategory(category: CategoryEntity) = categories.insert(category)
 
-    /// Used by Settings → "Clear All Data" and by sign-out cleanup. Order
-    /// matters: payments first (FK to debts), then debts/people/categories.
-    suspend fun wipeAll() {
+    /// Used by Settings → "Clear All Data" and by sign-out cleanup. Wrapped in a
+    /// single Room transaction so the four deletes commit atomically: a
+    /// cancellation (navigating away tears down the caller's scope) or process
+    /// death mid-wipe can no longer leave a half-cleared DB (e.g. payments gone
+    /// but debts remaining, or residual PII after a "successful" sign-out wipe).
+    /// Order matters: payments first (FK to debts), then debts/people/categories.
+    suspend fun wipeAll() = db.withTransaction {
         payments.deleteAll()
         debts.deleteAll()
         persons.deleteAll()
