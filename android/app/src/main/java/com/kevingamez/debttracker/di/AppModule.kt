@@ -9,6 +9,7 @@ import com.kevingamez.debttracker.data.db.DebtDao
 import com.kevingamez.debttracker.data.db.PaymentDao
 import com.kevingamez.debttracker.data.db.PersonDao
 import com.kevingamez.debttracker.security.DbPassphrase
+import com.kevingamez.debttracker.security.EncryptedSessionManager
 import com.kevingamez.debttracker.security.PlaintextDbMigration
 import dagger.Module
 import dagger.Provides
@@ -32,7 +33,7 @@ object AppModule {
     fun database(@ApplicationContext ctx: Context): AppDatabase {
         // SQLCipher needs its native library loaded before any DB open.
         SQLiteDatabase.loadLibs(ctx)
-        val passphrase = DbPassphrase.get(ctx)
+        val passphrase = DbPassphrase.get(ctx, AppDatabase.DB_NAME)
         // Pre-encryption installs left a plaintext SQLite file on disk that
         // SupportFactory can't open. Migrate it in place before Room tries.
         // The migration uses a copy of the key because SupportFactory zeroes
@@ -58,11 +59,17 @@ object AppModule {
     /// URL is blank we still build a client against a placeholder so the
     /// rest of DI doesn't NPE — `isConfigured` gates the auth UI.
     @Provides @Singleton
-    fun supabaseClient(): SupabaseClient {
+    fun supabaseClient(@ApplicationContext ctx: Context): SupabaseClient {
         val url = BuildConfig.SUPABASE_URL.ifBlank { "https://placeholder.supabase.co" }
         val key = BuildConfig.SUPABASE_ANON_KEY.ifBlank { "placeholder" }
         return createSupabaseClient(url, key) {
-            install(Auth)
+            install(Auth) {
+                // Persist the session (access + refresh JWT) in
+                // EncryptedSharedPreferences instead of supabase-kt's default
+                // plaintext SharedPreferences. Matches the iOS Keychain
+                // protection level and the SQLCipher passphrase's storage.
+                sessionManager = EncryptedSessionManager(ctx)
+            }
             install(Postgrest)
             install(Functions)
         }
