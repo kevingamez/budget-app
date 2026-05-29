@@ -31,9 +31,10 @@ final class AddDebtViewModel {
         !title.trimmingCharacters(in: .whitespaces).isEmpty && parsedAmount > 0
     }
 
-    /// Clamped to the safe `[0, InputBounds.maxAmount]` range.
+    /// Clamped to the safe `[0, InputBounds.maxAmount]` range. Parses
+    /// locale-aware so comma-decimal input ("5,50") isn't silently inflated.
     var parsedAmount: Decimal {
-        InputBounds.clamp(amount: Decimal(string: amountString) ?? 0)
+        InputBounds.clamp(amount: AmountInput.parse(amountString) ?? 0)
     }
 
     var personDisplayName: String {

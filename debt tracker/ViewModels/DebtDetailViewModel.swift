@@ -22,7 +22,7 @@ final class DebtDetailViewModel {
     }
 
     var parsedPaymentAmount: Decimal {
-        InputBounds.clamp(amount: Decimal(string: paymentAmountString) ?? 0)
+        InputBounds.clamp(amount: AmountInput.parse(paymentAmountString) ?? 0)
     }
 
     var isPaymentValid: Bool {

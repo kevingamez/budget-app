@@ -6,6 +6,7 @@ import com.kevingamez.debttracker.data.db.DebtEntity
 import com.kevingamez.debttracker.data.db.PersonEntity
 import com.kevingamez.debttracker.data.repository.DebtRepository
 import com.kevingamez.debttracker.domain.model.DebtDirection
+import com.kevingamez.debttracker.services.CurrencyFormatter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.math.BigDecimal
@@ -31,7 +32,7 @@ class AddDebtViewModel @Inject constructor(
         personName: String,
         notes: String?,
     ) {
-        val raw = amountString.toBigDecimalOrNull() ?: return
+        val raw = CurrencyFormatter.parseAmount(amountString) ?: return
         if (raw.signum() <= 0) return
         val amount = raw.min(maxAmount)
 

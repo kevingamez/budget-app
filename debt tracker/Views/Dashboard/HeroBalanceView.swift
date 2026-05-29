@@ -14,14 +14,20 @@ struct HeroBalanceView: View {
     private var sign: String { netBalance < 0 ? "-" : "" }
     private var absoluteString: String { abs(netBalance).currencyFormatted }
 
-    /// Splits a formatted currency like "$1,234.56" into ("$1,234", ".56").
+    /// The decimal separator of the locale the amount was formatted in (the
+    /// active app language). Splitting on this — not a hard-coded "." — keeps
+    /// the cents small in comma-decimal locales where "." is the *grouping*
+    /// separator ("1.234,56 €").
+    private var decimalSeparator: String {
+        Locale(identifier: AppStrings.shared.language).decimalSeparator ?? "."
+    }
+
+    /// Splits a formatted currency like "$1,234.56" into ("$1,234", ".56"),
+    /// or "1.234,56 €" into ("1.234", ",56 €"), on the locale decimal mark.
     private var split: (whole: String, fraction: String) {
         let str = absoluteString
-        if let dotIdx = str.lastIndex(of: ".") {
-            return (String(str[..<dotIdx]), String(str[dotIdx...]))
-        }
-        if let commaIdx = str.lastIndex(of: ",") {
-            return (String(str[..<commaIdx]), String(str[commaIdx...]))
+        if let range = str.range(of: decimalSeparator, options: .backwards) {
+            return (String(str[..<range.lowerBound]), String(str[range.lowerBound...]))
         }
         return (str, "")
     }

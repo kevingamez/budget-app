@@ -63,7 +63,7 @@ struct CurrencyConverterSection: View {
 
     @ViewBuilder
     private var result: some View {
-        if let amount = Decimal(string: convertAmount),
+        if let amount = AmountInput.parse(convertAmount),
            let converted = currencyService.convert(amount: amount, from: currencyCode, to: convertTo) {
             HStack {
                 Text(formatConverted(converted))

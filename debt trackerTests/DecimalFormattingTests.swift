@@ -41,4 +41,29 @@ struct DecimalFormattingTests {
         #expect(compact.contains("K"))
         #expect(compact.contains("12.5"))
     }
+
+    // MARK: - Locale-aware amount parsing (comma-decimal regression guard)
+
+    @Test("AmountInput parses comma-decimal input without 100x inflation")
+    func amountInputCommaDecimal() {
+        // German/Spanish-style "5,50" with ',' as the decimal separator → 5.50.
+        #expect(AmountInput.parse("5,50", decimalSeparator: ",") == Decimal(string: "5.50"))
+        // Grouped "1.234,56" ('.' grouping, ',' decimal) → 1234.56.
+        #expect(AmountInput.parse("1.234,56", decimalSeparator: ",") == Decimal(string: "1234.56"))
+    }
+
+    @Test("AmountInput parses period-decimal input and strips grouping commas")
+    func amountInputPeriodDecimal() {
+        #expect(AmountInput.parse("5.50", decimalSeparator: ".") == Decimal(string: "5.50"))
+        #expect(AmountInput.parse("1,234.56", decimalSeparator: ".") == Decimal(string: "1234.56"))
+        // Plain integer input.
+        #expect(AmountInput.parse("120", decimalSeparator: ".") == Decimal(120))
+    }
+
+    @Test("AmountInput returns nil for empty or non-numeric input")
+    func amountInputInvalid() {
+        #expect(AmountInput.parse("", decimalSeparator: ".") == nil)
+        #expect(AmountInput.parse(",", decimalSeparator: ",") == nil)
+        #expect(AmountInput.parse("abc", decimalSeparator: ".") == nil)
+    }
 }

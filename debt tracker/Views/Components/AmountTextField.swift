@@ -157,31 +157,19 @@ struct AmountTextField: View {
     }
 
     var decimalValue: Decimal? {
-        Decimal(string: text)
+        AmountInput.parse(text)
     }
 
+    /// Normalizes the locale decimal separator (comma in much of the world) to
+    /// "." and strips grouping separators, then caps the fractional part at two
+    /// digits. Storing canonical "." keeps `decimalValue` and the downstream
+    /// ViewModels correct regardless of the user's keyboard locale.
     private func filterAmountInput(_ input: String) -> String {
-        var result = ""
-        var hasDecimal = false
-        var decimalDigits = 0
-
-        for char in input {
-            if char.isNumber {
-                if hasDecimal {
-                    if decimalDigits < 2 {
-                        result.append(char)
-                        decimalDigits += 1
-                    }
-                } else {
-                    result.append(char)
-                }
-            } else if char == "." && !hasDecimal {
-                hasDecimal = true
-                result.append(char)
-            }
-        }
-
-        return result
+        let canonical = AmountInput.canonicalize(input)
+        guard let dotIndex = canonical.firstIndex(of: ".") else { return canonical }
+        let whole = canonical[..<dotIndex]
+        let fraction = canonical[canonical.index(after: dotIndex)...].prefix(2)
+        return "\(whole).\(fraction)"
     }
 }
 

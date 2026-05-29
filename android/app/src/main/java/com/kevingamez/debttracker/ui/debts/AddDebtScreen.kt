@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.kevingamez.debttracker.R
 import com.kevingamez.debttracker.domain.model.DebtDirection
+import com.kevingamez.debttracker.services.CurrencyFormatter
 import com.kevingamez.debttracker.ui.theme.DebtColors
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -35,7 +36,7 @@ fun AddDebtScreen(onDone: () -> Unit, vm: AddDebtViewModel = hiltViewModel()) {
                 },
                 actions = {
                     TextButton(
-                        enabled = title.isNotBlank() && amount.toBigDecimalOrNull() != null,
+                        enabled = title.isNotBlank() && CurrencyFormatter.parseAmount(amount) != null,
                         onClick = {
                             // No trimming/truncation here — the VM enforces
                             // the same bounds for every caller (including
@@ -64,7 +65,7 @@ fun AddDebtScreen(onDone: () -> Unit, vm: AddDebtViewModel = hiltViewModel()) {
             Text("$ ${amount.ifBlank { "0.00" }}",
                 color = DebtColors.TextPrimary, fontSize = 36.sp, fontWeight = FontWeight.Bold)
             OutlinedTextField(
-                value = amount, onValueChange = { amount = it.filter { c -> c.isDigit() || c == '.' } },
+                value = amount, onValueChange = { amount = it.filter { c -> c.isDigit() || c == '.' || c == ',' } },
                 placeholder = { Text("0.00") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 singleLine = true,

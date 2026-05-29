@@ -75,13 +75,23 @@ final class CurrencyService {
 
     func convert(amount: Decimal, from: String, to: String) -> Decimal? {
         guard let fromRate = rates[from], let toRate = rates[to],
-              fromRate > 0, toRate > 0 else {
+              fromRate > 0, toRate > 0,
+              fromRate.isFinite, toRate.isFinite else {
             return nil
         }
-        let amountDouble = NSDecimalNumber(decimal: amount).doubleValue
-        let converted = (amountDouble / fromRate) * toRate
-        guard converted.isFinite else { return nil }
-        return Decimal(converted)
+        // Keep the money in `Decimal` for the per-amount arithmetic instead of
+        // round-tripping through `Double` (which loses sub-cent precision on
+        // large amounts and violates the project's no-floating-point-money
+        // rule). The rates themselves arrive as `Double` from the API, so we
+        // wrap each once. USD-base: amount / fromRate → USD, × toRate → target.
+        let fromDecimal = Decimal(fromRate)
+        let toDecimal = Decimal(toRate)
+        guard fromDecimal > 0 else { return nil }
+        var raw = amount / fromDecimal * toDecimal
+        guard !raw.isNaN else { return nil }
+        var rounded = Decimal()
+        NSDecimalRound(&rounded, &raw, 2, .bankers)
+        return rounded
     }
 
     func rate(from: String, to: String) -> Double? {

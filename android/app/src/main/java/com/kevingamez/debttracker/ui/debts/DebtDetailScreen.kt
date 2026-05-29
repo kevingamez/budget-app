@@ -105,14 +105,14 @@ fun DebtDetailScreen(
             title = { Text("Record payment") },
             text = {
                 OutlinedTextField(
-                    value = payAmount, onValueChange = { payAmount = it.filter { c -> c.isDigit() || c == '.' } },
+                    value = payAmount, onValueChange = { payAmount = it.filter { c -> c.isDigit() || c == '.' || c == ',' } },
                     label = { Text("Amount") },
                     singleLine = true
                 )
             },
             confirmButton = {
                 TextButton(onClick = {
-                    payAmount.toBigDecimalOrNull()?.let {
+                    CurrencyFormatter.parseAmount(payAmount)?.let {
                         vm.recordPayment(it)
                         payAmount = ""
                         payDialog = false

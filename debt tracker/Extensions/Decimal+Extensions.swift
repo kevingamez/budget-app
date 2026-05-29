@@ -62,6 +62,55 @@ enum CurrencyFormatting {
     }
 }
 
+/// Locale-aware parsing for user-entered monetary amounts.
+///
+/// The iOS `.decimalPad` shows whatever decimal key the *device* locale uses
+/// (a comma across most of Europe and Latin America), while programmatic
+/// round-trips (e.g. `NSDecimalNumber.stringValue`) always emit a period.
+/// Calling `Decimal(string:)` directly drops the comma and silently inflates
+/// the value ~100x ("5,50" → 550). `canonicalize` normalizes any such input to
+/// a period-decimal, no-grouping string suitable for `Decimal(string:)`.
+enum AmountInput {
+    /// The decimal separator the on-screen keyboard / current device locale uses.
+    static var localeDecimalSeparator: String {
+        Locale.current.decimalSeparator ?? "."
+    }
+
+    /// Normalizes the decimal mark to "." and strips grouping separators,
+    /// currency symbols, and spaces. When the input contains the locale
+    /// separator (e.g. ","), that is treated as the decimal mark and "." as a
+    /// grouping separator; otherwise "." is the decimal mark. Only the first
+    /// decimal mark is kept.
+    static func canonicalize(_ input: String, decimalSeparator: String? = nil) -> String {
+        let localeSep = decimalSeparator ?? localeDecimalSeparator
+        let decimalMark: Character
+        if localeSep != ".", localeSep.count == 1, input.contains(localeSep) {
+            decimalMark = Character(localeSep)
+        } else {
+            decimalMark = "."
+        }
+        var result = ""
+        var hasDecimal = false
+        for char in input {
+            if char.isNumber {
+                result.append(char)
+            } else if char == decimalMark && !hasDecimal {
+                hasDecimal = true
+                result.append(".")
+            }
+            // Everything else (grouping separators, symbols, spaces) is dropped.
+        }
+        return result
+    }
+
+    /// Parses user input into a `Decimal`, returning nil for empty/invalid input.
+    static func parse(_ input: String, decimalSeparator: String? = nil) -> Decimal? {
+        let canonical = canonicalize(input, decimalSeparator: decimalSeparator)
+        guard !canonical.isEmpty, canonical != "." else { return nil }
+        return Decimal(string: canonical)
+    }
+}
+
 extension Decimal {
     /// Formats with the user's chosen currency code (from AppStorage)
     func currencyFormatted(code: String? = nil) -> String {
