@@ -79,19 +79,34 @@ enum AIInsightRateLimit {
     private static let countKey = "ai_insights_daily_count"
     private static let dayKey = "ai_insights_daily_day"
 
-    /// Returns true if a new call is allowed; increments the counter as a side effect.
-    static func tryConsume() -> Bool {
-        let today = ISO8601DateFormatter.string(from: Date(), timeZone: .current,
-                                                formatOptions: [.withFullDate])
+    private static func today() -> String {
+        ISO8601DateFormatter.string(from: Date(), timeZone: .current,
+                                    formatOptions: [.withFullDate])
+    }
+
+    /// Today's consumed count (a stale day reads as 0 without mutating storage).
+    private static func currentCount() -> Int {
+        guard UserDefaults.standard.string(forKey: dayKey) == today() else { return 0 }
+        return UserDefaults.standard.integer(forKey: countKey)
+    }
+
+    /// Peek: may another call proceed? Does NOT increment, so failed/retried
+    /// requests don't burn the user's daily quota.
+    static func canProceed() -> Bool {
+        currentCount() < dailyCap
+    }
+
+    /// Commit one *successful* call against today's quota. Call this only after
+    /// a real insight is returned — never on a network/decoding failure.
+    static func recordSuccess() {
+        let today = today()
         let lastDay = UserDefaults.standard.string(forKey: dayKey)
         var count = UserDefaults.standard.integer(forKey: countKey)
         if lastDay != today {
             count = 0
             UserDefaults.standard.set(today, forKey: dayKey)
         }
-        guard count < dailyCap else { return false }
         UserDefaults.standard.set(count + 1, forKey: countKey)
-        return true
     }
 }
 
@@ -132,8 +147,11 @@ final class AIInsightsService: AIInsightsServiceProtocol, Sendable {
 
         // Defense-in-depth: throttle locally so a stuck UI loop or held button
         // can't burn cost. The server enforces the real per-user cap via a
-        // Postgres counter (see migrations/*_ai_usage.sql).
-        guard AIInsightRateLimit.tryConsume() else {
+        // Postgres counter (see migrations/*_ai_usage.sql). We only *peek* here
+        // and commit a slot after a successful response — otherwise a string of
+        // network/decoding failures (one tap away via Retry/Regenerate) would
+        // exhaust the daily quota without ever producing an insight.
+        guard AIInsightRateLimit.canProceed() else {
             throw AIInsightsError.dailyLimitReached
         }
 
@@ -200,6 +218,8 @@ final class AIInsightsService: AIInsightsServiceProtocol, Sendable {
         else {
             throw AIInsightsError.decodingError
         }
+        // Success — only now commit a slot against the daily quota.
+        AIInsightRateLimit.recordSuccess()
         return text
     }
 
