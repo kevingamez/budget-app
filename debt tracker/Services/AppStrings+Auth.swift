@@ -114,6 +114,14 @@ extension AppStrings {
             "ja": "\u{30C7}\u{30FC}\u{30BF}\u{306F}\u{3053}\u{306E}\u{30C7}\u{30D0}\u{30A4}\u{30B9}\u{306B}\u{6B8B}\u{308A}\u{307E}\u{3059}\u{3002}",
             "ko": "\u{B370}\u{C774}\u{D130}\u{B294} \u{C774} \u{AE30}\u{AE30}\u{C5D0} \u{B0A8}\u{C544} \u{C788}\u{C2B5}\u{B2C8}\u{B2E4}.",
         ],
+        "auth.confirmEmailSent": [
+            "en": "Check your email to confirm your account, then sign in.",
+            "es": "Revisa tu correo para confirmar tu cuenta y luego inicia sesi\u{00F3}n.",
+            "fr": "V\u{00E9}rifiez votre e-mail pour confirmer votre compte, puis connectez-vous.",
+            "pt": "Verifique seu e-mail para confirmar sua conta e depois entre.",
+            "ja": "\u{30E1}\u{30FC}\u{30EB}\u{3092}\u{78BA}\u{8A8D}\u{3057}\u{3066}\u{30A2}\u{30AB}\u{30A6}\u{30F3}\u{30C8}\u{3092}\u{6709}\u{52B9}\u{5316}\u{3057}\u{3066}\u{304B}\u{3089}\u{30B5}\u{30A4}\u{30F3}\u{30A4}\u{30F3}\u{3057}\u{3066}\u{304F}\u{3060}\u{3055}\u{3044}\u{3002}",
+            "ko": "\u{C774}\u{BA54}\u{C77C}\u{C744} \u{D655}\u{C778}\u{D558}\u{C5EC} \u{ACC4}\u{C815}\u{C744} \u{C778}\u{C99D}\u{D55C} \u{D6C4} \u{B85C}\u{ADF8}\u{C778}\u{D558}\u{C138}\u{C694}.",
+        ],
         "auth.errorInvalidForm": [
             "en": "Please enter a valid email and password (6+ characters).",
             "es": "Ingresa un correo v\u{00E1}lido y contrase\u{00F1}a (6+ caracteres).",

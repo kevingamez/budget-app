@@ -81,7 +81,16 @@ final class SupabaseAuthService {
 
         do {
             let response = try await client.auth.signUp(email: email, password: password)
-            currentUser = Self.mapUser(response.user)
+            // With Supabase's default "confirm email" setting, signUp returns a
+            // user but NO session (no JWT). Only flip to authenticated when a
+            // real session exists — otherwise the user lands in the app with no
+            // token and any data they enter is orphaned when the next launch
+            // can't restore a session.
+            if response.session != nil {
+                currentUser = Self.mapUser(response.user)
+            } else {
+                errorMessage = AppStrings.shared.tr("auth.confirmEmailSent")
+            }
         } catch {
             errorMessage = error.localizedDescription
         }
