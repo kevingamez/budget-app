@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import java.math.BigDecimal
+import java.math.RoundingMode
 import javax.inject.Inject
 
 /// Equivalent of iOS DashboardViewModel.refresh — same aggregates, exposed
@@ -46,6 +47,7 @@ class DashboardViewModel @Inject constructor(repository: DebtRepository) : ViewM
                 .fold(BigDecimal.ZERO) { acc, d -> acc + d.remainingAmount }
             val iOwe = active.filter { it.entity.direction == DebtDirection.I_OWE }
                 .fold(BigDecimal.ZERO) { acc, d -> acc + d.remainingAmount }
+            val totalTracked = debts.fold(BigDecimal.ZERO) { acc, d -> acc + d.totalAmount }
 
             DashboardState(
                 totalOwedToMe = owedToMe,
@@ -54,10 +56,14 @@ class DashboardViewModel @Inject constructor(repository: DebtRepository) : ViewM
                 activeDebtCount = active.size,
                 overdueCount = active.count { it.isOverdue },
                 almostPaidCount = active.count { it.progressFraction in 0.5..0.99 },
-                totalAmountTracked = debts.fold(BigDecimal.ZERO) { acc, d -> acc + d.totalAmount },
+                totalAmountTracked = totalTracked,
                 paidOffCount = derived.count { it.derivedStatus == DebtStatus.PAID_OFF || it.derivedStatus == DebtStatus.FORGIVEN },
+                // `divide` MUST carry a scale + RoundingMode: bare `/` on
+                // BigDecimal throws ArithmeticException on any non-terminating
+                // quotient (e.g. 2444.80/12), which here would crash the whole
+                // dashboard Flow — including on a freshly seeded install.
                 averageAmount = if (debts.isEmpty()) BigDecimal.ZERO
-                    else debts.fold(BigDecimal.ZERO) { acc, d -> acc + d.totalAmount } / BigDecimal(debts.size),
+                    else totalTracked.divide(BigDecimal(debts.size), 2, RoundingMode.HALF_EVEN),
                 totalPaymentAmount = payments.fold(BigDecimal.ZERO) { acc, p -> acc + p.amount },
                 totalDebts = debts.size,
                 totalPersons = derived.mapNotNull { it.entity.personId }.distinct().size,
