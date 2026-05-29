@@ -44,6 +44,21 @@ internal object PlaintextDbMigration {
         File(dbFile.parentFile, "${tmp.name}-shm").delete()
         File(dbFile.parentFile, "${tmp.name}-wal").delete()
 
+        // Checkpoint the WAL into the main file FIRST. Room runs in WAL mode by
+        // default, so committed-but-uncheckpointed rows live in `${dbName}-wal`
+        // and are invisible to the OPEN_READONLY copy below — without this they
+        // would be lost. Open read-write once and force a TRUNCATE checkpoint so
+        // every row lands in the main file before we read it.
+        runCatching {
+            android.database.sqlite.SQLiteDatabase.openDatabase(
+                dbFile.absolutePath,
+                null,
+                android.database.sqlite.SQLiteDatabase.OPEN_READWRITE,
+            ).use { wdb ->
+                wdb.rawQuery("PRAGMA wal_checkpoint(TRUNCATE)", null).use { it.moveToFirst() }
+            }
+        }.onFailure { Log.w(TAG, "WAL checkpoint before migration failed (continuing): ${it.message}") }
+
         val src = android.database.sqlite.SQLiteDatabase.openDatabase(
             dbFile.absolutePath,
             null,
@@ -66,10 +81,28 @@ internal object PlaintextDbMigration {
             src.close()
         }
 
-        if (!dbFile.delete()) error("Failed to delete plaintext DB during migration")
-        if (!tmp.renameTo(dbFile)) error("Failed to swap encrypted DB into place")
+        // Verify the freshly encrypted DB actually opens with the SAME raw key
+        // SupportFactory will use in production — BEFORE we touch the original.
+        // If this throws we bail with the plaintext DB still intact, and the
+        // next cold launch simply retries the migration.
+        SQLiteDatabase.openOrCreateDatabase(tmp.absolutePath, passphrase.copyOf(), null).use { verify ->
+            verify.rawQuery("SELECT count(*) FROM sqlite_master", null).use { it.moveToFirst() }
+        }
+
+        // Crash-atomic swap: move the plaintext file aside as a backup rather
+        // than deleting it outright, so a crash mid-swap can never leave the
+        // user with no database at all. Only drop the backup once the encrypted
+        // DB is verified and in place.
+        val backup = File(dbFile.parentFile, "${dbFile.name}.plaintext.bak")
+        if (backup.exists()) backup.delete()
+        if (!dbFile.renameTo(backup)) error("Failed to set aside plaintext DB during migration")
+        if (!tmp.renameTo(dbFile)) {
+            backup.renameTo(dbFile) // roll back to the plaintext DB
+            error("Failed to swap encrypted DB into place")
+        }
         File(dbFile.parentFile, "${dbFile.name}-shm").delete()
         File(dbFile.parentFile, "${dbFile.name}-wal").delete()
+        backup.delete()
         Log.i(TAG, "Plaintext DB migrated to SQLCipher.")
     }
 
@@ -136,7 +169,7 @@ internal object PlaintextDbMigration {
         }
     }
 
-    private fun isPlaintextSqlite(file: File): Boolean = try {
+    internal fun isPlaintextSqlite(file: File): Boolean = try {
         FileInputStream(file).use { input ->
             val header = ByteArray(16)
             val read = input.read(header)
